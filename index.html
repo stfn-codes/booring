@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Boredom Gauntlet</title>
+    <title>The Boredom Gauntlet - Admin Hub</title>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     
     <style>
@@ -316,7 +316,7 @@
                 <div class="card">
                     <h3>Navigazione</h3>
                     <button class="menu-btn active" onclick="switchView('dashboard', this)">🎮 Dashboard</button>
-                    <button class="menu-btn" onclick="switchView('reaction-game', this)">⚡ Reaction Blitz</button>
+                    <button class="menu-btn" onclick="withview=false; switchView('reaction-game', this)">⚡ Reaction Blitz</button>
                     <button class="menu-btn" onclick="switchView('slots-game', this)">🎰 Slot Machine</button>
                     <button class="menu-btn" onclick="switchView('ttt-game', this)">❌ Tris P2P</button>
                     <button class="menu-btn" id="admin-nav-link" style="display:none; color:var(--success-color);" onclick="switchView('admin-panel', this)">👑 Monitor Terminale</button>
@@ -358,14 +358,14 @@
                         <div class="game-card" onclick="document.querySelectorAll('.menu-btn')[3].click()">
                             <div class="icon">❌</div>
                             <h4>Tris Real-Time</h4>
-                            <p>Sfida il computer o crea una stanza P2P sincronizzata per giocare con un amico su un altro iPad.</p>
+                            <p>Sfida la CPU o apri una stanza per sfidare l'altro iPad.</p>
                         </div>
                     </div>
                 </div>
 
                 <div id="admin-panel" class="view">
-                    <h2 style="color: #fff;">Monitor di Sistema (P2P Live)</h2>
-                    <p id="mode-badge" style="font-size:13px; color:var(--accent-color); margin-top:5px;">In attesa di connessione con altri iPad...</p>
+                    <h2 style="color: #fff;">Monitor di Sistema (Hub Autoconnesso)</h2>
+                    <p id="mode-badge" style="font-size:13px; color:var(--accent-color); margin-top:5px;">Inizializzazione radar...</p>
                     <table class="admin-table">
                         <thead>
                             <tr>
@@ -429,7 +429,7 @@
                             <div class="game-card" onclick="showTTTLobby()">
                                 <div class="icon">🌐</div>
                                 <h4>P2P Nexus Lobby</h4>
-                                <p style="font-size:12px; color:#888; margin-top:8px;">Genera un codice stanza per connettere l'altro iPad senza server.</p>
+                                <p style="font-size:12px; color:#888; margin-top:8px;">Gioca a Tris usando un codice stanza.</p>
                             </div>
                         </div>
 
@@ -437,7 +437,7 @@
                             <p id="my-id-display" style="font-size:14px; color:var(--accent-color); text-align:center;">Creazione canale...</p>
                             <div style="width:100%; border-bottom: 1px solid var(--glass-border); margin:5px 0;"></div>
                             <input type="text" id="join-id-input" class="gauntlet-input" placeholder="Inserisci ID dell'amico (5 cifre)">
-                            <button class="gauntlet-btn" style="width:100%" onclick="connectToPeer()">Connettiti & Sincronizza</button>
+                            <button class="gauntlet-btn" style="width:100%" onclick="connectToPeer()">Connettiti</button>
                             <button class="menu-btn" style="text-align:center; margin-top:10px;" onclick="resetTTTEngine()">← Indietro</button>
                         </div>
 
@@ -475,8 +475,89 @@
         let currentUserData = null; 
         let authTab = 'login';
 
-        // Registro temporaneo dei profili remoti connessi via PeerJS
-        let connectedRemoteUsers = {};
+        // --- MOTORE DI RETE BACKGROUND (ADMIN HUB SENZA PARTITA) ---
+        let globalPeer = null;
+        let adminConnections = {};     // Mappa delle connessioni attive dell'admin {'username': conn}
+        let activeAdminConn = null;    // Connessione del client verso l'admin
+        let connectedRemoteUsers = {}; // Profili remoti mostrati nella tabella dell'admin
+
+        function initBackgroundNetwork() {
+            if (sessionUser === 'admin') {
+                // L'admin accende l'Hub ad un indirizzo fisso e unico per la classe
+                globalPeer = new Peer('gauntlet-admin-hub-2ds-class');
+                
+                globalPeer.on('open', () => {
+                    document.getElementById('mode-badge').innerText = "👑 HUB FISSO ATTIVO. In attesa di login degli altri iPad...";
+                    document.getElementById('mode-badge').style.color = "var(--success-color)";
+                });
+
+                globalPeer.on('connection', (conn) => {
+                    conn.on('data', (data) => {
+                        // Quando riceve i dati di un account registrato in background
+                        if (data.type === 'bg-sync-profile') {
+                            adminConnections[data.username] = conn;
+                            connectedRemoteUsers[data.username] = data.profile;
+                            rebuildMonitoringTable();
+                        }
+                    });
+                    
+                    conn.on('close', () => {
+                        // Rimuove l'utente se disconnette o chiude la pagina
+                        Object.keys(adminConnections).forEach(user => {
+                            if (adminConnections[user] === conn) {
+                                delete adminConnections[user];
+                                delete connectedRemoteUsers[user];
+                            }
+                        });
+                        rebuildMonitoringTable();
+                    });
+                });
+
+                globalPeer.on('error', (err) => {
+                    if (err.type === 'unavailable-id') {
+                        document.getElementById('mode-badge').innerText = "⚠️ Hub già avviato su un altro iPad.";
+                    }
+                });
+
+            } else {
+                // Se è un utente normale, avvia una connessione silenziosa automatica
+                globalPeer = new Peer();
+                globalPeer.on('open', () => {
+                    attemptConnectionToAdmin();
+                    // Continua a provare a connettersi in background se l'admin non era ancora loggato
+                    setInterval(() => {
+                        if (!activeAdminConn || !activeAdminConn.open) {
+                            attemptConnectionToAdmin();
+                        }
+                    }, 5000);
+                });
+            }
+        }
+
+        function attemptConnectionToAdmin() {
+            if (sessionUser === 'admin' || !globalPeer) return;
+            
+            activeAdminConn = globalPeer.connect('gauntlet-admin-hub-2ds-class');
+            
+            activeAdminConn.on('open', () => {
+                // Spedisce all'admin il suo profilo locale di nascosto
+                activeAdminConn.send({
+                    type: 'bg-sync-profile',
+                    username: sessionUser,
+                    profile: currentUserData
+                });
+            });
+
+            activeAdminConn.on('data', (data) => {
+                // Riceve le modifiche forzate dei crediti dall'admin
+                if (data.type === 'remote-credit-force') {
+                    currentUserData.credits = data.credits;
+                    localDB[sessionUser].credits = data.credits;
+                    localStorage.setItem('g_account_db', JSON.stringify(localDB));
+                    updateUI();
+                }
+            });
+        }
 
         function toggleAuthTab(tab) {
             authTab = tab;
@@ -498,7 +579,7 @@
                     successfulEntranceTrigger();
                 } else { err.innerText = "Credenziali errate."; }
             } else {
-                if(localDB[user]) { err.innerText = "Questo Username esiste già su questo iPad."; return; }
+                if(localDB[user]) { err.innerText = "Username occupato su questo iPad."; return; }
                 localDB[user] = { password: pass, credits: 25, unlockedThemes: ['default'], activeTheme: 'default' };
                 localStorage.setItem('g_account_db', JSON.stringify(localDB));
                 sessionUser = user;
@@ -516,6 +597,10 @@
 
             currentUserData = localDB[sessionUser];
             updateUI();
+            
+            // Accendiamo la rete di background subito dopo il login!
+            initBackgroundNetwork();
+            
             switchView('dashboard', document.querySelectorAll('.menu-btn')[0]);
         }
 
@@ -524,10 +609,10 @@
             localStorage.setItem('g_account_db', JSON.stringify(localDB));
             updateUI();
 
-            // Se siamo connessi con un amico, mandagli subito il nostro profilo aggiornato!
-            if (conn && conn.open) {
-                conn.send({
-                    type: 'sync-profile',
+            // Aggiorna subito l'admin se spendiamo crediti o sblocchiamo temi
+            if (sessionUser !== 'admin' && activeAdminConn && activeAdminConn.open) {
+                activeAdminConn.send({
+                    type: 'bg-sync-profile',
                     username: sessionUser,
                     profile: currentUserData
                 });
@@ -538,19 +623,17 @@
             sessionUser = null;
             currentUserData = null;
             localStorage.removeItem('g_session_user');
-            document.getElementById('app-structure').style.display = 'none';
-            document.getElementById('auth-screen').style.flex = 'flex';
             window.location.reload();
         }
 
-        // Variabili di gioco
+        // Variabili giochi interni
         let reactionTimeout, startTime, gameActive = false, triggerReady = false, activeReactionBet = 0;
         const slotSymbols = ['🍒', '🍋', '🍇', '🔔', '💎', '7️⃣'];
         let slotsSpinning = false;
 
         let tttBoard = Array(9).fill('');
         let tttMode = ''; let tttActive = false; let tttTurn = 'X'; let tttMySymbol = 'X'; 
-        let peer = null, conn = null, activeTTTBet = 0;
+        let tttPeer = null, tttConn = null, activeTTTBet = 0; // Separate dal canale Admin background
 
         function updateUI() {
             if(!sessionUser || !currentUserData) return;
@@ -601,31 +684,19 @@
             saveUserData();
         }
 
-        // --- CORE TABELLA MONITOR TERMINALE (SYNC-P2P AUTOMATICO) ---
+        // --- RIGENERAZIONE TABELLA LIVE ---
         function rebuildMonitoringTable() {
             let container = document.getElementById('admin-user-rows');
             if(!container) return;
             container.innerHTML = "";
 
-            // 1. Mostra sempre gli utenti di questo iPad
             Object.keys(localDB).forEach(user => {
-                appendAdminRow(container, user, localDB[user], "Locale (Questo iPad)");
+                appendAdminRow(container, user, localDB[user], "Dispositivo Locale");
             });
 
-            // 2. Mostra gli utenti dell'altro iPad passati via P2P
             Object.keys(connectedRemoteUsers).forEach(user => {
-                appendAdminRow(container, user, connectedRemoteUsers[user], "📡 Remoto (iPad Connesso)");
+                appendAdminRow(container, user, connectedRemoteUsers[user], "📡 iPad Remoto Sincronizzato");
             });
-
-            // Aggiorna lo stato del monitor
-            let badge = document.getElementById('mode-badge');
-            if (Object.keys(connectedRemoteUsers).length > 0) {
-                badge.innerText = "🌐 Link Peer-to-Peer Aperto. Monitoraggio dispositivi remoti attivo.";
-                badge.style.color = "var(--success-color)";
-            } else {
-                badge.innerText = "⚠️ Modalità Standalone. Connettiti con un altro iPad per tracciare il suo schermo.";
-                badge.style.color = "var(--text-color)";
-            }
         }
 
         function appendAdminRow(container, username, data, sourceLabel) {
@@ -637,7 +708,7 @@
                 </td>
                 <td style="font-size:12px;">${data.unlockedThemes ? data.unlockedThemes.join(', ') : 'default'}</td>
                 <td>
-                    ${username !== 'admin' ? `<span style="color:var(--success-color)">Online active</span>` : '<span style="color:#555">Protetto</span>'}
+                    ${username !== 'admin' ? `<span style="color:var(--success-color)">● Connesso background</span>` : '<span style="color:#555">Protetto</span>'}
                 </td>
             `;
             container.appendChild(tr);
@@ -648,16 +719,15 @@
             if(isNaN(parsed) || parsed < 0) parsed = 0;
             
             if (localDB[user]) {
-                // Modifica locale (Account di questo iPad)
                 localDB[user].credits = parsed;
                 localStorage.setItem('g_account_db', JSON.stringify(localDB));
                 if (user === sessionUser) currentUserData.credits = parsed;
                 updateUI();
             } else if (connectedRemoteUsers[user]) {
-                // MODIFICA REMOTA (Modifica i crediti sull'iPad dell'amico via P2P!)
                 connectedRemoteUsers[user].credits = parsed;
-                if (conn && conn.open) {
-                    conn.send({
+                // Spedisce la forzatura attraverso il canale salvato in memoria per l'utente specifico
+                if (adminConnections[user] && adminConnections[user].open) {
+                    adminConnections[user].send({
                         type: 'remote-credit-force',
                         credits: parsed
                     });
@@ -672,7 +742,7 @@
             return val;
         }
 
-        // --- GIOCO 1: REACTION BLITZ ---
+        // --- MINI GIOCO: REACTION BLITZ ---
         const target = document.getElementById('reaction-target');
         const rText = document.getElementById('reaction-text');
         const rSubtext = document.getElementById('reaction-subtext');
@@ -688,18 +758,12 @@
             if (!gameActive) {
                 activeReactionBet = parseValidWager('reaction-bet');
                 if (activeReactionBet > 0 && currentUserData.credits < activeReactionBet) {
-                    alert("Non hai abbastanza crediti!");
-                    return;
+                    alert("Non hai abbastanza crediti!"); return;
                 }
-
-                currentUserData.credits -= activeReactionBet;
-                saveUserData();
-
+                currentUserData.credits -= activeReactionBet; saveUserData();
                 gameActive = true; triggerReady = false; target.className = 'reaction-box waiting';
-                document.getElementById('reaction-bet-panel').style.opacity = '0.4';
-                document.getElementById('reaction-bet').disabled = true;
-
-                rText.innerText = 'Resta concentrato... Aspetta il VERDE'; rSubtext.innerText = '';
+                document.getElementById('reaction-bet-panel').style.opacity = '0.4'; document.getElementById('reaction-bet').disabled = true;
+                rText.innerText = 'Resta concentrato... Aspetta il VERDE';
                 let randomDelay = Math.floor(Math.random() * 3000) + 2000;
                 reactionTimeout = setTimeout(() => {
                     triggerReady = true; target.className = 'reaction-box ready'; rText.innerText = 'CLICCA ORA!';
@@ -707,51 +771,28 @@
                 }, randomDelay);
             } else if (gameActive && !triggerReady) {
                 clearTimeout(reactionTimeout); gameActive = false; target.className = 'reaction-box';
-                rText.innerText = 'Troppo presto! Falso avvio.'; 
-                rSubtext.innerText = `Hai perso la tua puntata di ${activeReactionBet} 🪙. Clicca per riprovare.`;
-                document.getElementById('reaction-bet-panel').style.opacity = '1';
-                document.getElementById('reaction-bet').disabled = false;
+                rText.innerText = 'Troppo presto! Falso avvio.'; rSubtext.innerText = `Puntata persa: -${activeReactionBet} 🪙`;
+                document.getElementById('reaction-bet-panel').style.opacity = '1'; document.getElementById('reaction-bet').disabled = false;
             } else if (gameActive && triggerReady) {
-                let endTime = window.performance.now();
-                let reactionTime = Math.round(endTime - startTime);
+                let endTime = window.performance.now(); let reactionTime = Math.round(endTime - startTime);
                 gameActive = false; triggerReady = false; target.className = 'reaction-box';
-                
-                document.getElementById('reaction-bet-panel').style.opacity = '1';
-                document.getElementById('reaction-bet').disabled = false;
-
+                document.getElementById('reaction-bet-panel').style.opacity = '1'; document.getElementById('reaction-bet').disabled = false;
                 let multiplier = reactionTime < 200 ? 3 : reactionTime < 300 ? 2 : reactionTime < 450 ? 1 : 0;
                 let returns = Math.round(activeReactionBet * multiplier);
-                
-                if (activeReactionBet === 0) {
-                    returns = reactionTime < 250 ? 5 : reactionTime < 400 ? 2 : 0;
-                }
-
-                currentUserData.credits += returns; 
-                rText.innerText = `${reactionTime} ms`;
-                rSubtext.innerText = multiplier > 1 ? `Fantastico! Vincita fiammante: +${returns} crediti.` : `Ritorno: +${returns} crediti.`;
-                saveUserData();
+                if (activeReactionBet === 0) returns = reactionTime < 250 ? 5 : reactionTime < 400 ? 2 : 0;
+                currentUserData.credits += returns; rText.innerText = `${reactionTime} ms`;
+                rSubtext.innerText = `Ritorno: +${returns} crediti.`; saveUserData();
             }
         }
 
-        // --- GIOCO 2: SLOT MACHINE ---
+        // --- MINI GIOCO: SLOT MACHINE ---
         function triggerSlotSpin() {
             if (slotsSpinning) return;
             let currentSlotsBet = parseValidWager('slots-bet');
-            
-            if (currentSlotsBet <= 0) { alert("Punta almeno 1 credito!"); return; }
-            if (currentUserData.credits < currentSlotsBet) {
-                document.getElementById('slots-msg').style.color = '#ff4757';
-                document.getElementById('slots-msg').innerText = "Crediti Insufficienti!";
-                return;
-            }
+            if (currentSlotsBet <= 0 || currentUserData.credits < currentSlotsBet) return alert("Crediti insufficienti o scommessa non valida!");
 
-            currentUserData.credits -= currentSlotsBet; 
-            slotsSpinning = true; 
-            saveUserData();
-
-            const spinBtn = document.getElementById('spin-btn'); const msgDisplay = document.getElementById('slots-msg');
-            document.getElementById('slots-bet').disabled = true;
-            spinBtn.disabled = true; msgDisplay.innerText = "";
+            currentUserData.credits -= currentSlotsBet; slotsSpinning = true; saveUserData();
+            document.getElementById('spin-btn').disabled = true; document.getElementById('slots-bet').disabled = true;
             const r1 = document.getElementById('reel-1'), r2 = document.getElementById('reel-2'), r3 = document.getElementById('reel-3');
             r1.classList.add('spinning'); r2.classList.add('spinning'); r3.classList.add('spinning');
 
@@ -762,42 +803,32 @@
             }, 70);
 
             setTimeout(() => r1.classList.remove('spinning'), 1000);
-            setTimeout(() => r2.classList.remove('spinning'), 1400);
+            setTimeout(() => r2.classList.remove('spinning'), 1300);
             setTimeout(() => {
                 clearInterval(spinInterval); r3.classList.remove('spinning');
                 evaluateSlotsResults(r1.innerText, r2.innerText, r3.innerText, currentSlotsBet);
-            }, 1800);
+            }, 1600);
         }
 
         function evaluateSlotsResults(res1, res2, res3, stake) {
-            const msgDisplay = document.getElementById('slots-msg');
-            slotsSpinning = false; 
-            document.getElementById('spin-btn').disabled = false;
-            document.getElementById('slots-bet').disabled = false;
-
+            const msgDisplay = document.getElementById('slots-msg'); slotsSpinning = false;
+            document.getElementById('spin-btn').disabled = false; document.getElementById('slots-bet').disabled = false;
             if (res1 === res2 && res2 === res3) {
-                let multiplier = res1 === '7️⃣' ? 25 : res1 === '💎' ? 15 : res1 === '🔔' ? 10 : 6;
-                let jackpotYield = stake * multiplier;
-                currentUserData.credits += jackpotYield; msgDisplay.style.color = 'var(--success-color)';
-                msgDisplay.innerText = `JACKPOT! 3x [${res1}] Payout di: +${jackpotYield} crediti!`;
+                let yieldJack = stake * (res1 === '7️⃣' ? 25 : 10); currentUserData.credits += yieldJack;
+                msgDisplay.style.color = 'var(--success-color)'; msgDisplay.innerText = `JACKPOT! +${yieldJack} 🪙`;
             } else if (res1 === res2 || res2 === res3 || res1 === res3) {
-                let doubleYield = Math.floor(stake * 2);
-                currentUserData.credits += doubleYield; msgDisplay.style.color = 'var(--accent-color)'; 
-                msgDisplay.innerText = `Coppia! Hai vinto: +${doubleYield} crediti.`;
-            } else {
-                msgDisplay.style.color = '#ff4757'; msgDisplay.innerText = "Nessuna combinazione. Ritenta.";
-            }
+                let yieldDouble = stake * 2; currentUserData.credits += yieldDouble;
+                msgDisplay.style.color = 'var(--accent-color)'; msgDisplay.innerText = `Coppia! +${yieldDouble} 🪙`;
+            } else { msgDisplay.style.color = '#ff4757'; msgDisplay.innerText = "Niente. Ritenta."; }
             saveUserData();
         }
 
-        // --- GIOCO 3: TRIS ENGINE + FUNZIONI DI NETWORK SINCRONIZZATE ---
+        // --- SEZIONE GIOCO TRIS STANDALONE ---
         function generateShortRoomID() {
-            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-            let result = '';
-            for (let i = 0; i < 5; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
-            return result;
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let res = '';
+            for (let i = 0; i < 5; i++) res += chars.charAt(Math.floor(Math.random() * chars.length));
+            return res;
         }
-
         function resetTTTEngine() {
             tttBoard.fill(''); tttActive = false; tttTurn = 'X';
             document.getElementById('ttt-mode-select').style.display = 'grid';
@@ -805,21 +836,10 @@
             document.getElementById('ttt-board-wrapper').style.display = 'none';
             document.getElementById('ttt-replay-btn').style.display = 'none';
             document.getElementById('ttt-bet-panel').style.display = 'flex';
-            document.getElementById('ttt-bet').disabled = false;
-            document.getElementById('ttt-msg').style.color = '#fff';
-            clearGridRender();
-            
-            if(peer) { 
-                peer.destroy(); peer = null; conn = null; 
-                connectedRemoteUsers = {};
-                rebuildMonitoringTable();
-            }
+            document.getElementById('ttt-bet').disabled = false; document.getElementById('ttt-msg').style.color = '#fff';
+            document.querySelectorAll('.ttt-cell').forEach(c => { c.innerText = ''; c.className = 'ttt-cell'; });
+            if(tttPeer) { tttPeer.destroy(); tttPeer = null; tttConn = null; }
         }
-
-        function clearGridRender() {
-            document.querySelectorAll('.ttt-cell').forEach(cell => { cell.innerText = ''; cell.className = 'ttt-cell'; });
-        }
-
         function renderBoard() {
             const cells = document.querySelectorAll('.ttt-cell');
             tttBoard.forEach((val, idx) => {
@@ -828,179 +848,62 @@
             });
             updateTTTStatusMessage();
         }
-
         function updateTTTStatusMessage() {
-            const msg = document.getElementById('ttt-msg');
-            const replayBtn = document.getElementById('ttt-replay-btn');
-            msg.style.color = '#fff';
-            let winner = checkWinner();
-
-            if (winner) {
-                tttActive = false; replayBtn.style.display = 'inline-block';
-                if (winner === 'TIE') { msg.innerText = "Pareggio! Wager conservato."; return; }
-
-                if (tttMode === 'ai') {
-                    if (winner === 'X') { 
-                        let winBonus = activeTTTBet > 0 ? activeTTTBet : 10;
-                        msg.innerText = `Vittoria! AI Sconfitta (+${winBonus} 🪙)`; 
-                        currentUserData.credits += winBonus; 
-                    } else { 
-                        let effectiveLoss = Math.min(currentUserData.credits, activeTTTBet);
-                        currentUserData.credits = Math.max(0, currentUserData.credits - activeTTTBet);
-                        msg.style.color = '#ff4757'; 
-                        msg.innerText = effectiveLoss > 0 ? `L'AI vince la partita! Costo: -${effectiveLoss} 🪙` : "L'AI ha vinto.";
-                    }
+            const msg = document.getElementById('ttt-msg'); const rep = document.getElementById('ttt-replay-btn');
+            let win = checkWinner();
+            if(win) {
+                tttActive = false; rep.style.display = 'inline-block';
+                if(win === 'TIE') { msg.innerText = "Pareggio."; return; }
+                if((win === tttMySymbol && tttMode === 'online') || (win === 'X' && tttMode === 'ai')) {
+                    let b = activeTTTBet > 0 ? activeTTTBet : 10; msg.innerText = `Vittoria! (+${b} 🪙)`; currentUserData.credits += b;
                 } else {
-                    if (winner === tttMySymbol) { 
-                        let p2pBonus = activeTTTBet > 0 ? activeTTTBet : 15;
-                        msg.innerText = `Hai Vinto il Match P2P! (+${p2pBonus} 🪙)`; 
-                        currentUserData.credits += p2pBonus; 
-                    } else { 
-                        let effectiveLoss = Math.min(currentUserData.credits, activeTTTBet);
-                        currentUserData.credits = Math.max(0, currentUserData.credits - activeTTTBet);
-                        msg.style.color = '#ff4757'; 
-                        msg.innerText = effectiveLoss > 0 ? `Il tuo amico vince! Costo: -${effectiveLoss} 🪙` : "Sconfitta.";
-                    }
+                    let l = Math.min(currentUserData.credits, activeTTTBet); currentUserData.credits -= l;
+                    msg.style.color = '#ff4757'; msg.innerText = `Sconfitta. (-${l} 🪙)`;
                 }
                 saveUserData(); return;
             }
-            msg.innerText = tttMode === 'online' ? (tttTurn === tttMySymbol ? "Tuo Turno" : "In attesa dell'avversario...") : (tttTurn === 'X' ? "Tuo Turno (X)" : "L'AI sta calcolando...");
+            msg.innerText = tttMode === 'online' ? (tttTurn === tttMySymbol ? "Tuo Turno" : "Attesa amico...") : (tttTurn === 'X' ? "Tuo Turno" : "CPU sta pensando...");
         }
-
         function startTTTAI() {
-            activeTTTBet = parseValidWager('ttt-bet');
-            if(currentUserData.credits > 0 && activeTTTBet > currentUserData.credits) { alert("Crediti insufficienti!"); return; }
-
+            activeTTTBet = parseValidWager('ttt-bet'); if(currentUserData.credits < activeTTTBet) return alert("Crediti insufficienti!");
             tttMode = 'ai'; tttActive = true; tttMySymbol = 'X'; tttTurn = 'X';
-            document.getElementById('ttt-mode-select').style.display = 'none';
-            document.getElementById('ttt-bet-panel').style.display = 'none';
-            document.getElementById('ttt-board-wrapper').style.display = 'block';
-            renderBoard();
+            document.getElementById('ttt-mode-select').style.display = 'none'; document.getElementById('ttt-bet-panel').style.display = 'none';
+            document.getElementById('ttt-board-wrapper').style.display = 'block'; renderBoard();
         }
-
         function showTTTLobby() {
-            activeTTTBet = parseValidWager('ttt-bet');
-            if(currentUserData.credits > 0 && activeTTTBet > currentUserData.credits) { alert("Crediti insufficienti!"); return; }
-
-            document.getElementById('ttt-mode-select').style.display = 'none';
-            document.getElementById('ttt-bet-panel').style.display = 'none';
+            activeTTTBet = parseValidWager('ttt-bet'); if(currentUserData.credits < activeTTTBet) return alert("Crediti insufficienti!");
+            document.getElementById('ttt-mode-select').style.display = 'none'; document.getElementById('ttt-bet-panel').style.display = 'none';
             document.getElementById('ttt-lobby-panel').style.display = 'flex';
-            const shortID = generateShortRoomID();
-            peer = new Peer(shortID);
-            
-            peer.on('open', (id) => {
-                document.getElementById('my-id-display').innerHTML = `ID Stanza: <strong style="color:#fff; font-size:16px; background:rgba(255,255,255,0.1); padding:4px 12px; border-radius:6px;">${id}</strong>`;
-            });
-            peer.on('connection', (incomingConn) => {
-                conn = incomingConn; tttMySymbol = 'X'; setupP2PListeners();
-                setTimeout(() => { 
-                    // Condividi il profilo admin o giocatore appena apre la connessione
-                    conn.send({ type: 'sync-profile', username: sessionUser, profile: currentUserData });
-                    conn.send({ type: 'sync-bet', bet: activeTTTBet }); 
-                    launchOnlineMatch(); 
-                }, 500);
-            });
+            const roomCode = generateShortRoomID(); tttPeer = new Peer(roomCode);
+            tttPeer.on('open', id => document.getElementById('my-id-display').innerHTML = `Codice Stanza: <strong style="color:#fff;">${id}</strong>`);
+            tttPeer.on('connection', c => { tttConn = c; tttMySymbol = 'X'; setupTTTListeners(); setTimeout(() => { tttConn.send({type:'sync-bet', bet:activeTTTBet}); launchOnlineMatch(); }, 400); });
         }
-
         function connectToPeer() {
-            const targetId = document.getElementById('join-id-input').value.trim().toUpperCase();
-            if(!targetId) return alert("Inserisci il codice di 5 cifre!");
-            peer = new Peer();
-            peer.on('open', () => { 
-                conn = peer.connect(targetId); 
-                tttMySymbol = 'O'; 
-                setupP2PListeners(); 
+            let target = document.getElementById('join-id-input').value.trim().toUpperCase(); if(!target) return;
+            tttPeer = new Peer();
+            tttPeer.on('open', () => { tttConn = tttPeer.connect(target); tttMySymbol = 'O'; setupTTTListeners(); });
+        }
+        function setupTTTListeners() {
+            tttConn.on('data', d => {
+                if(d.type === 'move') { tttBoard[d.index] = tttTurn; tttTurn = tttTurn === 'X' ? 'O' : 'X'; renderBoard(); }
+                else if(d.type === 'rematch') { tttBoard.fill(''); tttActive = true; tttTurn = 'X'; document.getElementById('ttt-replay-btn').style.display = 'none'; renderBoard(); }
+                else if(d.type === 'sync-bet') { activeTTTBet = d.bet; launchOnlineMatch(); }
             });
         }
-
-        function setupP2PListeners() {
-            conn.on('open', () => {
-                // Invia immediatamente le proprie info all'altro dispositivo appena scatta il link!
-                conn.send({
-                    type: 'sync-profile',
-                    username: sessionUser,
-                    profile: currentUserData
-                });
-            });
-
-            conn.on('data', (data) => {
-                // --- INTERCETTAZIONE DI PROFILO P2P ---
-                if (data.type === 'sync-profile') {
-                    connectedRemoteUsers[data.username] = data.profile;
-                    rebuildMonitoringTable();
-                }
-                
-                // --- INTERCETTAZIONE FORZATURA CREDITI ADMIN ---
-                else if (data.type === 'remote-credit-force') {
-                    currentUserData.credits = data.credits;
-                    localDB[sessionUser].credits = data.credits;
-                    localStorage.setItem('g_account_db', JSON.stringify(localDB));
-                    updateUI();
-                }
-
-                else if(data.type === 'move') { tttBoard[data.index] = tttTurn; tttTurn = tttTurn === 'X' ? 'O' : 'X'; renderBoard(); }
-                else if(data.type === 'rematch') { executeCleanRoundReset(); }
-                else if(data.type === 'sync-bet') { activeTTTBet = data.bet; launchOnlineMatch(); }
-            });
-            
-            conn.on('close', () => { 
-                alert("Connessione interrotta con l'altro dispositivo."); 
-                resetTTTEngine(); 
-            });
-        }
-
-        function launchOnlineMatch() {
-            tttMode = 'online'; tttActive = true; tttTurn = 'X';
-            document.getElementById('ttt-lobby-panel').style.display = 'none';
-            document.getElementById('ttt-board-wrapper').style.display = 'block';
-            clearGridRender(); renderBoard();
-        }
-
-        function handleTTTRematchRequest() {
-            if (tttMode === 'online' && conn) conn.send({ type: 'rematch' });
-            executeCleanRoundReset();
-        }
-
-        function executeCleanRoundReset() {
-            tttBoard.fill(''); tttActive = true; tttTurn = 'X'; 
-            document.getElementById('ttt-replay-btn').style.display = 'none';
-            clearGridRender(); renderBoard();
-        }
-
+        function launchOnlineMatch() { tttMode = 'online'; tttActive = true; tttTurn = 'X'; document.getElementById('ttt-lobby-panel').style.display = 'none'; document.getElementById('ttt-board-wrapper').style.display = 'block'; renderBoard(); }
+        function handleTTTRematchRequest() { if(tttConn) tttConn.send({type:'rematch'}); tttBoard.fill(''); tttActive = true; tttTurn = 'X'; document.getElementById('ttt-replay-btn').style.display = 'none'; renderBoard(); }
         function handleTTTClick(idx) {
-            if(!tttActive || tttBoard[idx] !== '') return;
-            if(tttMode === 'online' && tttTurn !== tttMySymbol) return;
-
+            if(!tttActive || tttBoard[idx] !== '' || (tttMode === 'online' && tttTurn !== tttMySymbol)) return;
             tttBoard[idx] = tttTurn; tttTurn = tttTurn === 'X' ? 'O' : 'X'; renderBoard();
-
-            if (tttMode === 'online' && conn) conn.send({ type: 'move', index: idx });
-            else if (tttMode === 'ai' && tttActive && tttTurn === 'O') setTimeout(executeAIMove, 400); 
+            if(tttMode === 'online' && tttConn) tttConn.send({type:'move', index:idx});
+            else if(tttMode === 'ai' && tttActive && tttTurn === 'O') setTimeout(() => {
+                let empty = tttBoard.map((v,i)=>v===''?i:null).filter(v=>v!==null);
+                if(empty.length > 0) { tttBoard[empty[Math.floor(Math.random()*empty.length)]] = 'O'; tttTurn = 'X'; renderBoard(); }
+            }, 400);
         }
-
-        function executeAIMove() {
-            if(!tttActive) return;
-            let move = findWinningMove('O') || findWinningMove('X') || (tttBoard[4] === '' ? 4 : null);
-            if (move === null) {
-                let emptyCells = tttBoard.map((v, i) => v === '' ? i : null).filter(v => v !== null);
-                move = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-            }
-            tttBoard[move] = 'O'; tttTurn = 'X'; renderBoard();
-        }
-
-        function findWinningMove(symbol) {
-            const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-            for(let line of lines) {
-                let chars = line.map(i => tttBoard[i]);
-                if(chars.filter(c => c === symbol).length === 2 && chars.filter(c => c === '').length === 1) return line[chars.indexOf('')];
-            }
-            return null;
-        }
-
         function checkWinner() {
             const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-            for(let line of lines) {
-                if(tttBoard[line[0]] && tttBoard[line[0]] === tttBoard[line[1]] && tttBoard[line[0]] === tttBoard[line[2]]) return tttBoard[line[0]];
-            }
+            for(let line of lines) { if(tttBoard[line[0]] && tttBoard[line[0]] === tttBoard[line[1]] && tttBoard[line[0]] === tttBoard[line[2]]) return tttBoard[line[0]]; }
             return tttBoard.includes('') ? null : 'TIE';
         }
 
