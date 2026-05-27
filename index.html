@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Boredom Gauntlet</title>
-    <!-- PeerJS CDN for Serverless Static Multiplayer -->
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
         :root {
@@ -335,7 +334,6 @@
         </aside>
 
         <main class="stage">
-            <!-- DASHBOARD VIEW -->
             <div id="dashboard" class="view active">
                 <h2 style="color: #fff; margin-bottom: 25px;">Select a Gauntlet Challenge</h2>
                 <div class="games-grid">
@@ -357,7 +355,6 @@
                 </div>
             </div>
 
-            <!-- REACTION GAME VIEW -->
             <div id="reaction-game" class="view">
                 <h2 style="color: #fff; margin-bottom: 15px;">Reaction Blitz</h2>
                 <div class="bet-panel" id="reaction-bet-panel">
@@ -371,7 +368,6 @@
                 </div>
             </div>
 
-            <!-- SLOT MACHINE VIEW -->
             <div id="slots-game" class="view">
                 <h2 style="color: #fff; margin-bottom: 15px;">Neon Slots</h2>
                 <div class="slots-machine-container">
@@ -390,19 +386,16 @@
                 </div>
             </div>
 
-            <!-- TIC-TAC-TOE VIEW -->
             <div id="ttt-game" class="view">
                 <h2 style="color: #fff; margin-bottom: 15px;">Tic-Tac-Toe Engine</h2>
                 <div class="ttt-container">
                     
-                    <!-- Global TTT Bet Selection Component -->
                     <div class="bet-panel" id="ttt-bet-panel">
                         <label>Match Stake:</label>
                         <input type="number" id="ttt-bet" class="bet-field" value="10" min="0">
                         <span style="font-size: 14px;">🪙</span>
                     </div>
 
-                    <!-- Card Mode Selection Screen -->
                     <div id="ttt-mode-select" class="ttt-setup-grid">
                         <div class="game-card" onclick="startTTTAI()">
                             <div class="icon">🤖</div>
@@ -416,7 +409,6 @@
                         </div>
                     </div>
 
-                    <!-- Multiplayer Lobby Screen -->
                     <div id="ttt-lobby-panel" class="ttt-lobby" style="display:none;">
                         <p id="my-id-display" style="font-size:14px; color:var(--accent-color); text-align:center;">Hooking signal relay...</p>
                         <div style="width:100%; border-bottom: 1px solid var(--glass-border); margin:5px 0;"></div>
@@ -425,7 +417,6 @@
                         <button class="menu-btn" style="text-align:center; margin-top:10px;" onclick="resetTTTEngine()">← Back</button>
                     </div>
 
-                    <!-- Actual Board Display -->
                     <div id="ttt-board-wrapper" style="display:none; text-align:center;">
                         <div class="control-row">
                             <button class="gauntlet-btn" style="padding:6px 16px; font-size:12px; background:#ff4757; color:#fff;" onclick="resetTTTEngine()">Leave Lobby</button>
@@ -703,14 +694,12 @@
                         msg.innerText = `Victory! Mainframe defeated (+${winBonus} 🪙)`; 
                         state.credits += winBonus; 
                     } else { 
-                        // Deduct risk stake on loss, absolute minimum threshold capped at 0
                         let effectiveLoss = Math.min(state.credits, activeTTTBet);
                         state.credits = Math.max(0, state.credits - activeTTTBet);
                         msg.style.color = '#ff4757'; 
                         msg.innerText = effectiveLoss > 0 ? `AI Mainframe Wins! Cost: -${effectiveLoss} 🪙` : "AI Mainframe Wins!";
                     }
                 } else {
-                    // Online Mode Settlement Architecture
                     if (winner === tttMySymbol) { 
                         let p2pBonus = activeTTTBet > 0 ? activeTTTBet : 15;
                         msg.innerText = `You Win the Match! (+${p2pBonus} 🪙)`; 
@@ -735,7 +724,6 @@
 
         function startTTTAI() {
             activeTTTBet = parseValidWager('ttt-bet');
-            // If they have credits, ensure they aren't staking more than they own
             if(state.credits > 0 && activeTTTBet > state.credits) {
                 alert("You cannot place a match stake greater than your current total portfolio!");
                 return;
@@ -773,7 +761,6 @@
                 tttMySymbol = 'X'; 
                 setupP2PListeners();
                 
-                // Host transmits local bet configuration to client link
                 setTimeout(() => {
                     conn.send({ type: 'sync-bet', bet: activeTTTBet });
                     launchOnlineMatch();
@@ -863,11 +850,20 @@
             }
         }
 
+        // --- FIXED AI MOVE ENGINE (Checks explicit null conditions) ---
         function executeAIMove() {
             if(!tttActive) return;
-            let move = findWinningMove('O') || findWinningMove('X') || (tttBoard[4] === '' ? 4 : -1);
             
-            if(move === -1) {
+            let move = findWinningMove('O'); // Rule 1: Try to win instantly
+            
+            if (move === null) {
+                move = findWinningMove('X'); // Rule 2: Block human player properly
+            }
+            if (move === null && tttBoard[4] === '') {
+                move = 4; // Rule 3: Snatch the center square
+            }
+            if (move === null) {
+                // Rule 4: Fallback to remaining available cells
                 let emptyCells = tttBoard.map((v, i) => v === '' ? i : null).filter(v => v !== null);
                 move = emptyCells[Math.floor(Math.random() * emptyCells.length)];
             }
