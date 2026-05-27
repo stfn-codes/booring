@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Boredom Gauntlet</title>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    
     <style>
         :root {
             --bg-color: #0b0c10;
@@ -42,7 +43,6 @@
             overflow-x: hidden;
         }
 
-        /* Portal Entrance Styling */
         .auth-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -190,7 +190,6 @@
         .view { display: none; width: 100%; height: 100%; }
         .view.active { display: flex; flex-direction: column; }
 
-        /* Monitoring Admin Dashboard Styles */
         .admin-table {
             width: 100%; border-collapse: collapse; margin-top: 20px; background: rgba(0,0,0,0.2); border-radius: 8px; overflow: hidden;
         }
@@ -203,7 +202,6 @@
             color: var(--success-color); padding: 5px; border-radius: 4px; text-align: center; font-weight: bold;
         }
 
-        /* Betting UI Mechanics */
         .bet-panel {
             display: flex;
             align-items: center;
@@ -221,9 +219,7 @@
             width: 90px; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--glass-border);
             color: var(--accent-color); font-weight: 700; text-align: center; padding: 8px; border-radius: 8px; font-size: 15px;
         }
-        .bet-field:focus { border-color: var(--accent-color); outline: none; }
 
-        /* Game 1: Reaction Zone */
         .reaction-box {
             flex-grow: 1; background: rgba(255, 255, 255, 0.02); border: 2px dashed var(--glass-border);
             border-radius: 16px; display: flex; flex-direction: column; justify-content: center;
@@ -233,7 +229,6 @@
         .reaction-box.ready { background: var(--success-color); color: #000; border-color: transparent;}
         .reaction-box h2 { font-size: 28px; margin-bottom: 10px; text-align: center;}
 
-        /* Game 2: Casino Slot Machine */
         .slots-machine-container {
             flex-grow: 1; background: rgba(255, 255, 255, 0.01); border: 1px solid var(--glass-border);
             border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; min-height: 400px;
@@ -254,7 +249,6 @@
         .spin-action-btn:disabled, .gauntlet-btn:disabled { background: #333; color: #777; cursor: not-allowed; transform: none; filter: none;}
         .slots-status, .ttt-status { margin-top: 20px; font-size: 18px; font-weight: 600; min-height: 27px; color: #fff; text-align: center; }
 
-        /* Game 3: Tic-Tac-Toe Upgrades */
         .ttt-container {
             flex-grow: 1; background: rgba(255,255,255, 0.01); border: 1px solid var(--glass-border);
             border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px;
@@ -265,7 +259,6 @@
             width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); padding: 12px 20px;
             border-radius: 8px; color: #fff; font-size: 14px; text-align: center; letter-spacing: 1px; margin-bottom: 12px;
         }
-        .gauntlet-input:focus { border-color: var(--accent-color); outline: none; }
         .ttt-board { display: grid; grid-template-columns: repeat(3, 110px); grid-template-rows: repeat(3, 110px); gap: 12px; margin-top: 20px; }
         .ttt-cell {
             background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 12px;
@@ -297,12 +290,12 @@
             <h2 class="logo" style="margin-bottom: 20px;">Gauntlet<span>.io</span></h2>
             <div class="auth-tabs">
                 <button id="tab-login" class="auth-tab-btn active" onclick="toggleAuthTab('login')">Login</button>
-                <button id="tab-register" class="auth-tab-btn" onclick="toggleAuthTab('register')">Register</button>
+                <button id="tab-register" class="auth-tab-btn" onclick="toggleAuthTab('register')">Registrati</button>
             </div>
             <div id="auth-form-wrapper">
                 <input type="text" id="auth-user" class="gauntlet-input" placeholder="Username">
                 <input type="password" id="auth-pass" class="gauntlet-input" placeholder="Password">
-                <button class="gauntlet-btn" style="width:100%; margin-top:10px;" id="auth-action-btn" onclick="processAuth()">Authenticate</button>
+                <button class="gauntlet-btn" style="width:100%; margin-top:10px;" id="auth-action-btn" onclick="processAuth()">Accedi</button>
             </div>
             <p id="auth-err" style="color: #ff4757; margin-top: 15px; font-size: 13px; font-weight: 600; min-height: 20px;"></p>
         </div>
@@ -313,7 +306,7 @@
             <div class="logo">Gauntlet<span>.io</span></div>
             <div class="header-actions">
                 <p style="font-size:14px; font-weight:500;">User: <strong id="username-display" style="color:#fff;"></strong></p>
-                <div class="currency-display">Credits: <span id="credit-count">0</span> 🪙</div>
+                <div class="currency-display">Crediti: <span id="credit-count">0</span> 🪙</div>
                 <button class="gauntlet-btn" style="padding:6px 16px; font-size:12px; background:rgba(255,255,255,0.05); color:#fff; border:1px solid var(--glass-border);" onclick="logoutUser()">Logout</button>
             </div>
         </header>
@@ -321,65 +314,65 @@
         <div class="container">
             <aside>
                 <div class="card">
-                    <h3>Navigation</h3>
+                    <h3>Navigazione</h3>
                     <button class="menu-btn active" onclick="switchView('dashboard', this)">🎮 Dashboard</button>
                     <button class="menu-btn" onclick="switchView('reaction-game', this)">⚡ Reaction Blitz</button>
                     <button class="menu-btn" onclick="switchView('slots-game', this)">🎰 Slot Machine</button>
-                    <button class="menu-btn" onclick="switchView('ttt-game', this)">❌ Tic-Tac-Toe</button>
-                    <button class="menu-btn" id="admin-nav-link" style="display:none; color:var(--success-color);" onclick="switchView('admin-panel', this)">👑 Terminal Monitor</button>
+                    <button class="menu-btn" onclick="switchView('ttt-game', this)">❌ Tris P2P</button>
+                    <button class="menu-btn" id="admin-nav-link" style="display:none; color:var(--success-color);" onclick="switchView('admin-panel', this)">👑 Monitor Terminale</button>
                 </div>
 
                 <div class="card">
-                    <h3>Theme Shop</h3>
+                    <h3>Negozio Temi</h3>
                     <div class="shop-item">
                         <div>
                             <p style="color:#fff; font-size:14px;">Sunset Mode</p>
-                            <p style="font-size:11px; color:#888;">Cost: 50 🪙</p>
+                            <p style="font-size:11px; color:#888;">Costo: 50 🪙</p>
                         </div>
-                        <button class="shop-btn" id="btn-sunset" onclick="buyTheme('sunset', 50)">Buy</button>
+                        <button class="shop-btn" id="btn-sunset" onclick="buyTheme('sunset', 50)">Compra</button>
                     </div>
                     <div class="shop-item">
                         <div>
                             <p style="color:#fff; font-size:14px;">Matrix Terminal</p>
-                            <p style="font-size:11px; color:#888;">Cost: 100 🪙</p>
+                            <p style="font-size:11px; color:#888;">Costo: 100 🪙</p>
                         </div>
-                        <button class="shop-btn" id="btn-matrix" onclick="buyTheme('matrix', 100)">Buy</button>
+                        <button class="shop-btn" id="btn-matrix" onclick="buyTheme('matrix', 100)">Compra</button>
                     </div>
                 </div>
             </aside>
 
             <main class="stage">
                 <div id="dashboard" class="view active">
-                    <h2 style="color: #fff; margin-bottom: 25px;">Select a Gauntlet Challenge</h2>
+                    <h2 style="color: #fff; margin-bottom: 25px;">Seleziona una Sfida</h2>
                     <div class="games-grid">
                         <div class="game-card" onclick="document.querySelectorAll('.menu-btn')[1].click()">
                             <div class="icon">⚡</div>
                             <h4>Reaction Blitz</h4>
-                            <p>Test your reflexes. Higher risk wagers yield scaled credit rewards.</p>
+                            <p>Metti alla prova i tuoi riflessi. Più scommetti, più vinci.</p>
                         </div>
                         <div class="game-card" onclick="document.querySelectorAll('.menu-btn')[2].click()">
                             <div class="icon">🎰</div>
                             <h4>Neon Slots</h4>
-                            <p>Risk your hard-earned wealth. Set your own betting limits. Big Jackpots await.</p>
+                            <p>Tenta la fortuna alla slot machine. Grandi Jackpot in palio.</p>
                         </div>
                         <div class="game-card" onclick="document.querySelectorAll('.menu-btn')[3].click()">
                             <div class="icon">❌</div>
-                            <h4>Tic-Tac-Toe Protocol</h4>
-                            <p>Stake credits against our defensive mainframe AI or spin up a synchronized P2P lobby.</p>
+                            <h4>Tris Real-Time</h4>
+                            <p>Sfida il computer o crea una stanza P2P sincronizzata per giocare con un amico su un altro iPad.</p>
                         </div>
                     </div>
                 </div>
 
                 <div id="admin-panel" class="view">
-                    <h2 style="color: #fff;">System Monitoring Terminal</h2>
-                    <p style="font-size:13px; color:#888; margin-top:5px;">Live database tracking view of all user credits across this device node.</p>
+                    <h2 style="color: #fff;">Monitor di Sistema (P2P Live)</h2>
+                    <p id="mode-badge" style="font-size:13px; color:var(--accent-color); margin-top:5px;">In attesa di connessione con altri iPad...</p>
                     <table class="admin-table">
                         <thead>
                             <tr>
-                                <th>Account Identifier</th>
-                                <th>Active Balance</th>
-                                <th>Unlocked Perks</th>
-                                <th>Operations Actions</th>
+                                <th>Account Connessi</th>
+                                <th>Bilancio Crediti</th>
+                                <th>Perks Sbloccati</th>
+                                <th>Stato Canale</th>
                             </tr>
                         </thead>
                         <tbody id="admin-user-rows">
@@ -390,12 +383,12 @@
                 <div id="reaction-game" class="view">
                     <h2 style="color: #fff; margin-bottom: 15px;">Reaction Blitz</h2>
                     <div class="bet-panel" id="reaction-bet-panel">
-                        <label>Staked Risk:</label>
+                        <label>Puntata:</label>
                         <input type="number" id="reaction-bet" class="bet-field" value="5" min="0">
                         <span style="font-size: 14px;">🪙</span>
                     </div>
                     <div class="reaction-box" id="reaction-target" onclick="handleReactionClick()">
-                        <h2 id="reaction-text">Click to Start Experiment</h2>
+                        <h2 id="reaction-text">Clicca per Avviare</h2>
                         <p id="reaction-subtext"></p>
                     </div>
                 </div>
@@ -404,7 +397,7 @@
                     <h2 style="color: #fff; margin-bottom: 15px;">Neon Slots</h2>
                     <div class="slots-machine-container">
                         <div class="bet-panel" id="slots-bet-panel" style="margin-bottom:30px;">
-                            <label>Wager Allocation:</label>
+                            <label>Puntata Slot:</label>
                             <input type="number" id="slots-bet" class="bet-field" value="10" min="1">
                             <span style="font-size: 14px;">🪙</span>
                         </div>
@@ -413,16 +406,16 @@
                             <div class="reel" id="reel-2">🍋</div>
                             <div class="reel" id="reel-3">🍇</div>
                         </div>
-                        <button class="spin-action-btn" id="spin-btn" onclick="triggerSlotSpin()">SPIN REELS</button>
+                        <button class="spin-action-btn" id="spin-btn" onclick="triggerSlotSpin()">GIRA</button>
                         <div class="slots-status" id="slots-msg"></div>
                     </div>
                 </div>
 
                 <div id="ttt-game" class="view">
-                    <h2 style="color: #fff; margin-bottom: 15px;">Tic-Tac-Toe Engine</h2>
+                    <h2 style="color: #fff; margin-bottom: 15px;">Tris Protocol Engine</h2>
                     <div class="ttt-container">
                         <div class="bet-panel" id="ttt-bet-panel">
-                            <label>Match Stake:</label>
+                            <label>Posta in Palio:</label>
                             <input type="number" id="ttt-bet" class="bet-field" value="10" min="0">
                             <span style="font-size: 14px;">🪙</span>
                         </div>
@@ -431,27 +424,27 @@
                             <div class="game-card" onclick="startTTTAI()">
                                 <div class="icon">🤖</div>
                                 <h4>Mainframe AI</h4>
-                                <p style="font-size:12px; color:#888; margin-top:8px;">Combat a core heuristic script ruleset. Losing costs your stake.</p>
+                                <p style="font-size:12px; color:#888; margin-top:8px;">Sfida lo script interno offline.</p>
                             </div>
                             <div class="game-card" onclick="showTTTLobby()">
                                 <div class="icon">🌐</div>
                                 <h4>P2P Nexus Lobby</h4>
-                                <p style="font-size:12px; color:#888; margin-top:8px;">Generate a shortened shortcode link to host a real friend.</p>
+                                <p style="font-size:12px; color:#888; margin-top:8px;">Genera un codice stanza per connettere l'altro iPad senza server.</p>
                             </div>
                         </div>
 
                         <div id="ttt-lobby-panel" class="ttt-lobby" style="display:none;">
-                            <p id="my-id-display" style="font-size:14px; color:var(--accent-color); text-align:center;">Hooking signal relay...</p>
+                            <p id="my-id-display" style="font-size:14px; color:var(--accent-color); text-align:center;">Creazione canale...</p>
                             <div style="width:100%; border-bottom: 1px solid var(--glass-border); margin:5px 0;"></div>
-                            <input type="text" id="join-id-input" class="gauntlet-input" placeholder="Enter Friend's 5-Digit ID">
-                            <button class="gauntlet-btn" style="width:100%" onclick="connectToPeer()">Connect & Sync</button>
-                            <button class="menu-btn" style="text-align:center; margin-top:10px;" onclick="resetTTTEngine()">← Back</button>
+                            <input type="text" id="join-id-input" class="gauntlet-input" placeholder="Inserisci ID dell'amico (5 cifre)">
+                            <button class="gauntlet-btn" style="width:100%" onclick="connectToPeer()">Connettiti & Sincronizza</button>
+                            <button class="menu-btn" style="text-align:center; margin-top:10px;" onclick="resetTTTEngine()">← Indietro</button>
                         </div>
 
                         <div id="ttt-board-wrapper" style="display:none; text-align:center;">
                             <div class="control-row">
-                                <button class="gauntlet-btn" style="padding:6px 16px; font-size:12px; background:#ff4757; color:#fff;" onclick="resetTTTEngine()">Leave Lobby</button>
-                                <button class="gauntlet-btn" id="ttt-replay-btn" style="padding:6px 16px; font-size:12px; display:none;" onclick="handleTTTRematchRequest()">Play Again 🔄</button>
+                                <button class="gauntlet-btn" style="padding:6px 16px; font-size:12px; background:#ff4757; color:#fff;" onclick="resetTTTEngine()">Abbandona Lobby</button>
+                                <button class="gauntlet-btn" id="ttt-replay-btn" style="padding:6px 16px; font-size:12px; display:none;" onclick="handleTTTRematchRequest()">Gioca Ancora 🔄</button>
                             </div>
                             <div class="ttt-board" id="ttt-grid">
                                 <div class="ttt-cell" onclick="handleTTTClick(0)"></div>
@@ -464,7 +457,7 @@
                                 <div class="ttt-cell" onclick="handleTTTClick(7)"></div>
                                 <div class="ttt-cell" onclick="handleTTTClick(8)"></div>
                             </div>
-                            <div class="ttt-status" id="ttt-msg">Your Turn</div>
+                            <div class="ttt-status" id="ttt-msg">Tuo Turno</div>
                         </div>
                     </div>
                 </div>
@@ -473,13 +466,18 @@
     </div>
 
     <script>
-        // Multi-Account Micro Database Layer Architectures
-        let db = JSON.parse(localStorage.getItem('g_account_db')) || {
+        // Database Locale di ogni singolo dispositivo
+        let localDB = JSON.parse(localStorage.getItem('g_account_db')) || {
             "admin": { password: "admin123", credits: 999, unlockedThemes: ['default', 'sunset', 'matrix'], activeTheme: 'default' }
         };
+        
         let sessionUser = localStorage.getItem('g_session_user') || null;
-
+        let currentUserData = null; 
         let authTab = 'login';
+
+        // Registro temporaneo dei profili remoti connessi via PeerJS
+        let connectedRemoteUsers = {};
+
         function toggleAuthTab(tab) {
             authTab = tab;
             document.getElementById('tab-login').className = tab === 'login' ? 'auth-tab-btn active' : 'auth-tab-btn';
@@ -492,17 +490,17 @@
             let pass = document.getElementById('auth-pass').value.trim();
             let err = document.getElementById('auth-err');
 
-            if(!user || !pass) { err.innerText = "Fields cannot remain left unallocated!"; return; }
+            if(!user || !pass) { err.innerText = "Tutti i campi sono obbligatori!"; return; }
 
             if(authTab === 'login') {
-                if(db[user] && db[user].password === pass) {
+                if(localDB[user] && localDB[user].password === pass) {
                     sessionUser = user;
                     successfulEntranceTrigger();
-                } else { err.innerText = "Invalid terminal credential signatures."; }
+                } else { err.innerText = "Credenziali errate."; }
             } else {
-                if(db[user]) { err.innerText = "Account name index claimed globally."; return; }
-                db[user] = { password: pass, credits: 25, unlockedThemes: ['default'], activeTheme: 'default' };
-                saveDB();
+                if(localDB[user]) { err.innerText = "Questo Username esiste già su questo iPad."; return; }
+                localDB[user] = { password: pass, credits: 25, unlockedThemes: ['default'], activeTheme: 'default' };
+                localStorage.setItem('g_account_db', JSON.stringify(localDB));
                 sessionUser = user;
                 successfulEntranceTrigger();
             }
@@ -512,30 +510,40 @@
             localStorage.setItem('g_session_user', sessionUser);
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('app-structure').style.display = 'flex';
-            document.getElementById('auth-user').value = "";
-            document.getElementById('auth-pass').value = "";
             
-            // Toggle view visibility for system administrator dashboard controls
             document.getElementById('admin-nav-link').style.display = sessionUser === 'admin' ? 'block' : 'none';
-            
             document.getElementById('username-display').innerText = sessionUser;
+
+            currentUserData = localDB[sessionUser];
             updateUI();
             switchView('dashboard', document.querySelectorAll('.menu-btn')[0]);
         }
 
-        function logoutUser() {
-            sessionUser = null;
-            localStorage.removeItem('g_session_user');
-            document.getElementById('app-structure').style.display = 'none';
-            document.getElementById('auth-screen').style.display = 'flex';
+        function saveUserData() {
+            localDB[sessionUser] = currentUserData;
+            localStorage.setItem('g_account_db', JSON.stringify(localDB));
+            updateUI();
+
+            // Se siamo connessi con un amico, mandagli subito il nostro profilo aggiornato!
+            if (conn && conn.open) {
+                conn.send({
+                    type: 'sync-profile',
+                    username: sessionUser,
+                    profile: currentUserData
+                });
+            }
         }
 
-        function saveDB() { localStorage.setItem('g_account_db', JSON.stringify(db)); }
+        function logoutUser() {
+            sessionUser = null;
+            currentUserData = null;
+            localStorage.removeItem('g_session_user');
+            document.getElementById('app-structure').style.display = 'none';
+            document.getElementById('auth-screen').style.flex = 'flex';
+            window.location.reload();
+        }
 
-        // Core parsing fallback metrics
-        function getActiveUserRecord() { return db[sessionUser]; }
-
-        // Game State Core Engine Redirects
+        // Variabili di gioco
         let reactionTimeout, startTime, gameActive = false, triggerReady = false, activeReactionBet = 0;
         const slotSymbols = ['🍒', '🍋', '🍇', '🔔', '💎', '7️⃣'];
         let slotsSpinning = false;
@@ -545,22 +553,18 @@
         let peer = null, conn = null, activeTTTBet = 0;
 
         function updateUI() {
-            if(!sessionUser) return;
-            let userProfile = getActiveUserRecord();
+            if(!sessionUser || !currentUserData) return;
+            document.getElementById('credit-count').innerText = currentUserData.credits;
 
-            document.getElementById('credit-count').innerText = userProfile.credits;
-            saveDB();
-
-            // Clear shop button active signatures
             ['sunset', 'matrix'].forEach(theme => {
                 const btn = document.getElementById(`btn-${theme}`);
                 if(btn) {
-                    if(userProfile.unlockedThemes.includes(theme)) {
-                        btn.innerText = userProfile.activeTheme === theme ? 'Equipped' : 'Equip';
+                    if(currentUserData.unlockedThemes && currentUserData.unlockedThemes.includes(theme)) {
+                        btn.innerText = currentUserData.activeTheme === theme ? 'Equippato' : 'Equipaggia';
                         btn.className = 'shop-btn owned';
                         btn.setAttribute('onclick', `equipTheme('${theme}')`);
                     } else {
-                        btn.innerText = 'Buy';
+                        btn.innerText = 'Compra';
                         btn.className = 'shop-btn';
                         btn.setAttribute('onclick', theme === 'sunset' ? "buyTheme('sunset', 50)" : "buyTheme('matrix', 100)");
                     }
@@ -568,9 +572,9 @@
             });
 
             document.body.className = '';
-            if(userProfile.activeTheme !== 'default') document.body.classList.add(`theme-${userProfile.activeTheme}`);
+            if(currentUserData.activeTheme && currentUserData.activeTheme !== 'default') document.body.classList.add(`theme-${currentUserData.activeTheme}`);
             
-            if(sessionUser === 'admin') rebuildMonitoringTable();
+            rebuildMonitoringTable();
         }
 
         function switchView(viewId, element) {
@@ -584,52 +588,81 @@
         }
 
         function buyTheme(themeName, cost) {
-            let userProfile = getActiveUserRecord();
-            if(userProfile.credits >= cost && !userProfile.unlockedThemes.includes(themeName)) {
-                userProfile.credits -= cost;
-                userProfile.unlockedThemes.push(themeName);
-                userProfile.activeTheme = themeName;
-                updateUI();
-            } else { alert("Insufficient credit balance inside vault profile."); }
+            if(currentUserData.credits >= cost && !currentUserData.unlockedThemes.includes(themeName)) {
+                currentUserData.credits -= cost;
+                currentUserData.unlockedThemes.push(themeName);
+                currentUserData.activeTheme = themeName;
+                saveUserData();
+            } else { alert("Crediti insufficienti!"); }
         }
 
         function equipTheme(themeName) { 
-            let userProfile = getActiveUserRecord();
-            userProfile.activeTheme = userProfile.activeTheme === themeName ? 'default' : themeName; 
-            updateUI(); 
+            currentUserData.activeTheme = currentUserData.activeTheme === themeName ? 'default' : themeName; 
+            saveUserData();
         }
 
-        // --- ADMIN LIVE DATABASE PANEL SYSTEMS ---
+        // --- CORE TABELLA MONITOR TERMINALE (SYNC-P2P AUTOMATICO) ---
         function rebuildMonitoringTable() {
             let container = document.getElementById('admin-user-rows');
+            if(!container) return;
             container.innerHTML = "";
-            Object.keys(db).forEach(user => {
-                let tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td style="color:#fff; font-weight:600;">${user} ${user === 'admin' ? '⚙️' : ''}</td>
-                    <td>
-                        <input type="number" class="admin-input-small" value="${db[user].credits}" onchange="modifyUserCredits('${user}', this.value)">
-                    </td>
-                    <td style="font-size:12px;">${db[user].unlockedThemes.join(', ')}</td>
-                    <td>
-                        ${user !== 'admin' ? `<button class="gauntlet-btn" style="padding:4px 10px; font-size:11px; background:#ff4757; color:#fff;" onclick="purgeAccount('${user}')">Purge Account</button>` : '<span style="color:#555">Protected Core</span>'}
-                    </td>
-                `;
-                container.appendChild(tr);
+
+            // 1. Mostra sempre gli utenti di questo iPad
+            Object.keys(localDB).forEach(user => {
+                appendAdminRow(container, user, localDB[user], "Locale (Questo iPad)");
             });
+
+            // 2. Mostra gli utenti dell'altro iPad passati via P2P
+            Object.keys(connectedRemoteUsers).forEach(user => {
+                appendAdminRow(container, user, connectedRemoteUsers[user], "📡 Remoto (iPad Connesso)");
+            });
+
+            // Aggiorna lo stato del monitor
+            let badge = document.getElementById('mode-badge');
+            if (Object.keys(connectedRemoteUsers).length > 0) {
+                badge.innerText = "🌐 Link Peer-to-Peer Aperto. Monitoraggio dispositivi remoti attivo.";
+                badge.style.color = "var(--success-color)";
+            } else {
+                badge.innerText = "⚠️ Modalità Standalone. Connettiti con un altro iPad per tracciare il suo schermo.";
+                badge.style.color = "var(--text-color)";
+            }
+        }
+
+        function appendAdminRow(container, username, data, sourceLabel) {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="color:#fff; font-weight:600;">${username} ${username === 'admin' ? '⚙️' : ''} <br><small style="color:#666; font-weight:normal;">${sourceLabel}</small></td>
+                <td>
+                    <input type="number" class="admin-input-small" value="${data.credits}" onchange="modifyUserCredits('${username}', this.value)">
+                </td>
+                <td style="font-size:12px;">${data.unlockedThemes ? data.unlockedThemes.join(', ') : 'default'}</td>
+                <td>
+                    ${username !== 'admin' ? `<span style="color:var(--success-color)">Online active</span>` : '<span style="color:#555">Protetto</span>'}
+                </td>
+            `;
+            container.appendChild(tr);
         }
 
         function modifyUserCredits(user, value) {
             let parsed = parseInt(value);
             if(isNaN(parsed) || parsed < 0) parsed = 0;
-            db[user].credits = parsed;
-            updateUI();
-        }
-
-        function purgeAccount(user) {
-            if(confirm(`Confirm terminal separation process for node: [${user}]?`)) {
-                delete db[user];
+            
+            if (localDB[user]) {
+                // Modifica locale (Account di questo iPad)
+                localDB[user].credits = parsed;
+                localStorage.setItem('g_account_db', JSON.stringify(localDB));
+                if (user === sessionUser) currentUserData.credits = parsed;
                 updateUI();
+            } else if (connectedRemoteUsers[user]) {
+                // MODIFICA REMOTA (Modifica i crediti sull'iPad dell'amico via P2P!)
+                connectedRemoteUsers[user].credits = parsed;
+                if (conn && conn.open) {
+                    conn.send({
+                        type: 'remote-credit-force',
+                        credits: parsed
+                    });
+                }
+                rebuildMonitoringTable();
             }
         }
 
@@ -639,44 +672,43 @@
             return val;
         }
 
-        // --- REACTION BLITZ GAME CODE ---
+        // --- GIOCO 1: REACTION BLITZ ---
         const target = document.getElementById('reaction-target');
         const rText = document.getElementById('reaction-text');
         const rSubtext = document.getElementById('reaction-subtext');
 
         function resetReactionGame() {
             clearTimeout(reactionTimeout); gameActive = false; triggerReady = false;
-            target.className = 'reaction-box'; rText.innerText = "Click to Start Experiment"; rSubtext.innerText = "";
+            target.className = 'reaction-box'; rText.innerText = "Clicca per Avviare"; rSubtext.innerText = "";
             document.getElementById('reaction-bet-panel').style.opacity = '1';
             document.getElementById('reaction-bet').disabled = false;
         }
 
         function handleReactionClick() {
-            let userProfile = getActiveUserRecord();
             if (!gameActive) {
                 activeReactionBet = parseValidWager('reaction-bet');
-                if (activeReactionBet > 0 && userProfile.credits < activeReactionBet) {
-                    alert("Wager exceeds current treasury limits!");
+                if (activeReactionBet > 0 && currentUserData.credits < activeReactionBet) {
+                    alert("Non hai abbastanza crediti!");
                     return;
                 }
 
-                userProfile.credits -= activeReactionBet;
-                updateUI();
+                currentUserData.credits -= activeReactionBet;
+                saveUserData();
 
                 gameActive = true; triggerReady = false; target.className = 'reaction-box waiting';
                 document.getElementById('reaction-bet-panel').style.opacity = '0.4';
                 document.getElementById('reaction-bet').disabled = true;
 
-                rText.innerText = 'Hold your focus... Wait for Green'; rSubtext.innerText = '';
+                rText.innerText = 'Resta concentrato... Aspetta il VERDE'; rSubtext.innerText = '';
                 let randomDelay = Math.floor(Math.random() * 3000) + 2000;
                 reactionTimeout = setTimeout(() => {
-                    triggerReady = true; target.className = 'reaction-box ready'; rText.innerText = 'CLICK NOW!';
+                    triggerReady = true; target.className = 'reaction-box ready'; rText.innerText = 'CLICCA ORA!';
                     startTime = window.performance.now();
                 }, randomDelay);
             } else if (gameActive && !triggerReady) {
                 clearTimeout(reactionTimeout); gameActive = false; target.className = 'reaction-box';
-                rText.innerText = 'Too Early! Fault Detected.'; 
-                rSubtext.innerText = `You squandered your stake of ${activeReactionBet} 🪙. Click to try again.`;
+                rText.innerText = 'Troppo presto! Falso avvio.'; 
+                rSubtext.innerText = `Hai perso la tua puntata di ${activeReactionBet} 🪙. Clicca per riprovare.`;
                 document.getElementById('reaction-bet-panel').style.opacity = '1';
                 document.getElementById('reaction-bet').disabled = false;
             } else if (gameActive && triggerReady) {
@@ -694,27 +726,29 @@
                     returns = reactionTime < 250 ? 5 : reactionTime < 400 ? 2 : 0;
                 }
 
-                userProfile.credits += returns; 
+                currentUserData.credits += returns; 
                 rText.innerText = `${reactionTime} ms`;
-                rSubtext.innerText = multiplier > 1 ? `Excellent accuracy! Payout yield: +${returns} credits.` : `Yielded balance return: +${returns} credits.`;
-                updateUI();
+                rSubtext.innerText = multiplier > 1 ? `Fantastico! Vincita fiammante: +${returns} crediti.` : `Ritorno: +${returns} crediti.`;
+                saveUserData();
             }
         }
 
-        // --- NEON SLOTS GAME CODE ---
+        // --- GIOCO 2: SLOT MACHINE ---
         function triggerSlotSpin() {
             if (slotsSpinning) return;
             let currentSlotsBet = parseValidWager('slots-bet');
-            let userProfile = getActiveUserRecord();
             
-            if (currentSlotsBet <= 0) { alert("Please declare a risk wager greater than 0!"); return; }
-            if (userProfile.credits < currentSlotsBet) {
+            if (currentSlotsBet <= 0) { alert("Punta almeno 1 credito!"); return; }
+            if (currentUserData.credits < currentSlotsBet) {
                 document.getElementById('slots-msg').style.color = '#ff4757';
-                document.getElementById('slots-msg').innerText = "Insufficient Treasury Balance!";
+                document.getElementById('slots-msg').innerText = "Crediti Insufficienti!";
                 return;
             }
 
-            userProfile.credits -= currentSlotsBet; slotsSpinning = true; updateUI();
+            currentUserData.credits -= currentSlotsBet; 
+            slotsSpinning = true; 
+            saveUserData();
+
             const spinBtn = document.getElementById('spin-btn'); const msgDisplay = document.getElementById('slots-msg');
             document.getElementById('slots-bet').disabled = true;
             spinBtn.disabled = true; msgDisplay.innerText = "";
@@ -737,7 +771,6 @@
 
         function evaluateSlotsResults(res1, res2, res3, stake) {
             const msgDisplay = document.getElementById('slots-msg');
-            let userProfile = getActiveUserRecord();
             slotsSpinning = false; 
             document.getElementById('spin-btn').disabled = false;
             document.getElementById('slots-bet').disabled = false;
@@ -745,19 +778,19 @@
             if (res1 === res2 && res2 === res3) {
                 let multiplier = res1 === '7️⃣' ? 25 : res1 === '💎' ? 15 : res1 === '🔔' ? 10 : 6;
                 let jackpotYield = stake * multiplier;
-                userProfile.credits += jackpotYield; msgDisplay.style.color = 'var(--success-color)';
-                msgDisplay.innerText = `JACKPOT! Match 3 [${res1}] yielded +${jackpotYield} credits!`;
+                currentUserData.credits += jackpotYield; msgDisplay.style.color = 'var(--success-color)';
+                msgDisplay.innerText = `JACKPOT! 3x [${res1}] Payout di: +${jackpotYield} crediti!`;
             } else if (res1 === res2 || res2 === res3 || res1 === res3) {
                 let doubleYield = Math.floor(stake * 2);
-                userProfile.credits += doubleYield; msgDisplay.style.color = 'var(--accent-color)'; 
-                msgDisplay.innerText = `Double Match! Returns: +${doubleYield} credits.`;
+                currentUserData.credits += doubleYield; msgDisplay.style.color = 'var(--accent-color)'; 
+                msgDisplay.innerText = `Coppia! Hai vinto: +${doubleYield} crediti.`;
             } else {
-                msgDisplay.style.color = '#ff4757'; msgDisplay.innerText = "No Matches. Stake claimed by terminal.";
+                msgDisplay.style.color = '#ff4757'; msgDisplay.innerText = "Nessuna combinazione. Ritenta.";
             }
-            updateUI();
+            saveUserData();
         }
 
-        // --- TIC-TAC-TOE GAME ENGINE CODE ---
+        // --- GIOCO 3: TRIS ENGINE + FUNZIONI DI NETWORK SINCRONIZZATE ---
         function generateShortRoomID() {
             const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
             let result = '';
@@ -775,7 +808,12 @@
             document.getElementById('ttt-bet').disabled = false;
             document.getElementById('ttt-msg').style.color = '#fff';
             clearGridRender();
-            if(peer) { peer.destroy(); peer = null; conn = null; }
+            
+            if(peer) { 
+                peer.destroy(); peer = null; conn = null; 
+                connectedRemoteUsers = {};
+                rebuildMonitoringTable();
+            }
         }
 
         function clearGridRender() {
@@ -794,46 +832,44 @@
         function updateTTTStatusMessage() {
             const msg = document.getElementById('ttt-msg');
             const replayBtn = document.getElementById('ttt-replay-btn');
-            let userProfile = getActiveUserRecord();
             msg.style.color = '#fff';
             let winner = checkWinner();
 
             if (winner) {
                 tttActive = false; replayBtn.style.display = 'inline-block';
-                if (winner === 'TIE') { msg.innerText = "Match Declaration: Tie Game! Wager retained."; return; }
+                if (winner === 'TIE') { msg.innerText = "Pareggio! Wager conservato."; return; }
 
                 if (tttMode === 'ai') {
                     if (winner === 'X') { 
                         let winBonus = activeTTTBet > 0 ? activeTTTBet : 10;
-                        msg.innerText = `Victory! Mainframe defeated (+${winBonus} 🪙)`; 
-                        userProfile.credits += winBonus; 
+                        msg.innerText = `Vittoria! AI Sconfitta (+${winBonus} 🪙)`; 
+                        currentUserData.credits += winBonus; 
                     } else { 
-                        let effectiveLoss = Math.min(userProfile.credits, activeTTTBet);
-                        userProfile.credits = Math.max(0, userProfile.credits - activeTTTBet);
+                        let effectiveLoss = Math.min(currentUserData.credits, activeTTTBet);
+                        currentUserData.credits = Math.max(0, currentUserData.credits - activeTTTBet);
                         msg.style.color = '#ff4757'; 
-                        msg.innerText = effectiveLoss > 0 ? `AI Mainframe Wins! Cost: -${effectiveLoss} 🪙` : "AI Mainframe Wins!";
+                        msg.innerText = effectiveLoss > 0 ? `L'AI vince la partita! Costo: -${effectiveLoss} 🪙` : "L'AI ha vinto.";
                     }
                 } else {
                     if (winner === tttMySymbol) { 
                         let p2pBonus = activeTTTBet > 0 ? activeTTTBet : 15;
-                        msg.innerText = `You Win the Match! (+${p2pBonus} 🪙)`; 
-                        userProfile.credits += p2pBonus; 
+                        msg.innerText = `Hai Vinto il Match P2P! (+${p2pBonus} 🪙)`; 
+                        currentUserData.credits += p2pBonus; 
                     } else { 
-                        let effectiveLoss = Math.min(userProfile.credits, activeTTTBet);
-                        userProfile.credits = Math.max(0, userProfile.credits - activeTTTBet);
+                        let effectiveLoss = Math.min(currentUserData.credits, activeTTTBet);
+                        currentUserData.credits = Math.max(0, currentUserData.credits - activeTTTBet);
                         msg.style.color = '#ff4757'; 
-                        msg.innerText = effectiveLoss > 0 ? `Opponent Wins! Cost: -${effectiveLoss} 🪙` : "Opponent Wins!";
+                        msg.innerText = effectiveLoss > 0 ? `Il tuo amico vince! Costo: -${effectiveLoss} 🪙` : "Sconfitta.";
                     }
                 }
-                updateUI(); return;
+                saveUserData(); return;
             }
-            msg.innerText = tttMode === 'online' ? (tttTurn === tttMySymbol ? "Your Turn" : "Waiting for Opponent...") : (tttTurn === 'X' ? "Your Turn (X)" : "AI Calculating...");
+            msg.innerText = tttMode === 'online' ? (tttTurn === tttMySymbol ? "Tuo Turno" : "In attesa dell'avversario...") : (tttTurn === 'X' ? "Tuo Turno (X)" : "L'AI sta calcolando...");
         }
 
         function startTTTAI() {
             activeTTTBet = parseValidWager('ttt-bet');
-            let userProfile = getActiveUserRecord();
-            if(userProfile.credits > 0 && activeTTTBet > userProfile.credits) { alert("Wager exceeds current treasury limits!"); return; }
+            if(currentUserData.credits > 0 && activeTTTBet > currentUserData.credits) { alert("Crediti insufficienti!"); return; }
 
             tttMode = 'ai'; tttActive = true; tttMySymbol = 'X'; tttTurn = 'X';
             document.getElementById('ttt-mode-select').style.display = 'none';
@@ -844,8 +880,7 @@
 
         function showTTTLobby() {
             activeTTTBet = parseValidWager('ttt-bet');
-            let userProfile = getActiveUserRecord();
-            if(userProfile.credits > 0 && activeTTTBet > userProfile.credits) { alert("Wager exceeds current treasury limits!"); return; }
+            if(currentUserData.credits > 0 && activeTTTBet > currentUserData.credits) { alert("Crediti insufficienti!"); return; }
 
             document.getElementById('ttt-mode-select').style.display = 'none';
             document.getElementById('ttt-bet-panel').style.display = 'none';
@@ -854,28 +889,64 @@
             peer = new Peer(shortID);
             
             peer.on('open', (id) => {
-                document.getElementById('my-id-display').innerHTML = `Room ID: <strong style="color:#fff; font-size:16px; background:rgba(255,255,255,0.1); padding:4px 12px; border-radius:6px;">${id}</strong>`;
+                document.getElementById('my-id-display').innerHTML = `ID Stanza: <strong style="color:#fff; font-size:16px; background:rgba(255,255,255,0.1); padding:4px 12px; border-radius:6px;">${id}</strong>`;
             });
             peer.on('connection', (incomingConn) => {
                 conn = incomingConn; tttMySymbol = 'X'; setupP2PListeners();
-                setTimeout(() => { conn.send({ type: 'sync-bet', bet: activeTTTBet }); launchOnlineMatch(); }, 500);
+                setTimeout(() => { 
+                    // Condividi il profilo admin o giocatore appena apre la connessione
+                    conn.send({ type: 'sync-profile', username: sessionUser, profile: currentUserData });
+                    conn.send({ type: 'sync-bet', bet: activeTTTBet }); 
+                    launchOnlineMatch(); 
+                }, 500);
             });
         }
 
         function connectToPeer() {
             const targetId = document.getElementById('join-id-input').value.trim().toUpperCase();
-            if(!targetId) return alert("Please fill inside a valid short room identifier node!");
+            if(!targetId) return alert("Inserisci il codice di 5 cifre!");
             peer = new Peer();
-            peer.on('open', () => { conn = peer.connect(targetId); tttMySymbol = 'O'; setupP2PListeners(); });
+            peer.on('open', () => { 
+                conn = peer.connect(targetId); 
+                tttMySymbol = 'O'; 
+                setupP2PListeners(); 
+            });
         }
 
         function setupP2PListeners() {
+            conn.on('open', () => {
+                // Invia immediatamente le proprie info all'altro dispositivo appena scatta il link!
+                conn.send({
+                    type: 'sync-profile',
+                    username: sessionUser,
+                    profile: currentUserData
+                });
+            });
+
             conn.on('data', (data) => {
-                if(data.type === 'move') { tttBoard[data.index] = tttTurn; tttTurn = tttTurn === 'X' ? 'O' : 'X'; renderBoard(); }
+                // --- INTERCETTAZIONE DI PROFILO P2P ---
+                if (data.type === 'sync-profile') {
+                    connectedRemoteUsers[data.username] = data.profile;
+                    rebuildMonitoringTable();
+                }
+                
+                // --- INTERCETTAZIONE FORZATURA CREDITI ADMIN ---
+                else if (data.type === 'remote-credit-force') {
+                    currentUserData.credits = data.credits;
+                    localDB[sessionUser].credits = data.credits;
+                    localStorage.setItem('g_account_db', JSON.stringify(localDB));
+                    updateUI();
+                }
+
+                else if(data.type === 'move') { tttBoard[data.index] = tttTurn; tttTurn = tttTurn === 'X' ? 'O' : 'X'; renderBoard(); }
                 else if(data.type === 'rematch') { executeCleanRoundReset(); }
                 else if(data.type === 'sync-bet') { activeTTTBet = data.bet; launchOnlineMatch(); }
             });
-            conn.on('close', () => { alert("Opponent dropped connection."); resetTTTEngine(); });
+            
+            conn.on('close', () => { 
+                alert("Connessione interrotta con l'altro dispositivo."); 
+                resetTTTEngine(); 
+            });
         }
 
         function launchOnlineMatch() {
@@ -933,8 +1004,7 @@
             return tttBoard.includes('') ? null : 'TIE';
         }
 
-        // Automatic persistent login routing
-        if(sessionUser && db[sessionUser]) successfulEntranceTrigger();
+        if(sessionUser) successfulEntranceTrigger();
     </script>
 </body>
 </html>
