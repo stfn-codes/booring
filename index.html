@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Boredom Gauntlet</title>
+    <!-- PeerJS CDN for Serverless Static Multiplayer -->
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
         :root {
@@ -159,6 +160,37 @@
         .view { display: none; width: 100%; height: 100%; }
         .view.active { display: flex; flex-direction: column; }
 
+        /* Betting UI Mechanics */
+        .bet-panel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            padding: 12px 24px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            align-self: center;
+        }
+        .bet-panel label {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .bet-field {
+            width: 90px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--glass-border);
+            color: var(--accent-color);
+            font-weight: 700;
+            text-align: center;
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+        .bet-field:focus { border-color: var(--accent-color); outline: none; }
+
         /* Game 1: Reaction Zone */
         .reaction-box {
             flex-grow: 1;
@@ -303,67 +335,88 @@
         </aside>
 
         <main class="stage">
+            <!-- DASHBOARD VIEW -->
             <div id="dashboard" class="view active">
                 <h2 style="color: #fff; margin-bottom: 25px;">Select a Gauntlet Challenge</h2>
                 <div class="games-grid">
                     <div class="game-card" onclick="document.querySelectorAll('.menu-btn')[1].click()">
                         <div class="icon">⚡</div>
                         <h4>Reaction Blitz</h4>
-                        <p>Test your reflexes. Faster clicks yield massive currency rewards.</p>
+                        <p>Test your reflexes. Higher risk wagers yield scaled credit rewards.</p>
                     </div>
                     <div class="game-card" onclick="document.querySelectorAll('.menu-btn')[2].click()">
                         <div class="icon">🎰</div>
                         <h4>Neon Slots</h4>
-                        <p>Risk your hard-earned wealth. 10 credits per pull. Big Jackpots await.</p>
+                        <p>Risk your hard-earned wealth. Set your own betting limits. Big Jackpots await.</p>
                     </div>
                     <div class="game-card" onclick="document.querySelectorAll('.menu-btn')[3].click()">
                         <div class="icon">❌</div>
                         <h4>Tic-Tac-Toe Protocol</h4>
-                        <p>Play against our defensive mainframe AI or spin up a direct global P2P lobby.</p>
+                        <p>Stake credits against our defensive mainframe AI or spin up a synchronized P2P lobby.</p>
                     </div>
                 </div>
             </div>
 
+            <!-- REACTION GAME VIEW -->
             <div id="reaction-game" class="view">
                 <h2 style="color: #fff; margin-bottom: 15px;">Reaction Blitz</h2>
-                <p style="margin-bottom: 20px; font-size: 14px;">Click the target box when it snaps from red to green. Don't click early!</p>
+                <div class="bet-panel" id="reaction-bet-panel">
+                    <label>Staked Risk:</label>
+                    <input type="number" id="reaction-bet" class="bet-field" value="5" min="0">
+                    <span style="font-size: 14px;">🪙</span>
+                </div>
                 <div class="reaction-box" id="reaction-target" onclick="handleReactionClick()">
                     <h2 id="reaction-text">Click to Start Experiment</h2>
                     <p id="reaction-subtext"></p>
                 </div>
             </div>
 
+            <!-- SLOT MACHINE VIEW -->
             <div id="slots-game" class="view">
                 <h2 style="color: #fff; margin-bottom: 15px;">Neon Slots</h2>
-                <p style="margin-bottom: 20px; font-size: 14px;">Test your luck. Every spin consumes 10 credits.</p>
                 <div class="slots-machine-container">
+                    <div class="bet-panel" id="slots-bet-panel" style="margin-bottom:30px;">
+                        <label>Wager Allocation:</label>
+                        <input type="number" id="slots-bet" class="bet-field" value="10" min="1">
+                        <span style="font-size: 14px;">🪙</span>
+                    </div>
                     <div class="slots-reels">
                         <div class="reel" id="reel-1">🍒</div>
                         <div class="reel" id="reel-2">🍋</div>
                         <div class="reel" id="reel-3">🍇</div>
                     </div>
-                    <button class="spin-action-btn" id="spin-btn" onclick="triggerSlotSpin()">PULL LEVER (10 🪙)</button>
+                    <button class="spin-action-btn" id="spin-btn" onclick="triggerSlotSpin()">SPIN REELS</button>
                     <div class="slots-status" id="slots-msg"></div>
                 </div>
             </div>
 
+            <!-- TIC-TAC-TOE VIEW -->
             <div id="ttt-game" class="view">
                 <h2 style="color: #fff; margin-bottom: 15px;">Tic-Tac-Toe Engine</h2>
                 <div class="ttt-container">
                     
+                    <!-- Global TTT Bet Selection Component -->
+                    <div class="bet-panel" id="ttt-bet-panel">
+                        <label>Match Stake:</label>
+                        <input type="number" id="ttt-bet" class="bet-field" value="10" min="0">
+                        <span style="font-size: 14px;">🪙</span>
+                    </div>
+
+                    <!-- Card Mode Selection Screen -->
                     <div id="ttt-mode-select" class="ttt-setup-grid">
                         <div class="game-card" onclick="startTTTAI()">
                             <div class="icon">🤖</div>
                             <h4>Mainframe AI</h4>
-                            <p style="font-size:12px; color:#888; margin-top:8px;">Combat a core heuristic script rule set. Instant match loops.</p>
+                            <p style="font-size:12px; color:#888; margin-top:8px;">Combat a core heuristic script ruleset. Losing costs your stake.</p>
                         </div>
                         <div class="game-card" onclick="showTTTLobby()">
                             <div class="icon">🌐</div>
                             <h4>P2P Nexus Lobby</h4>
-                            <p style="font-size:12px; color:#888; margin-top:8px;">Generate a shortened short-code link to host a real friend.</p>
+                            <p style="font-size:12px; color:#888; margin-top:8px;">Generate a shortened shortcode link to host a real friend.</p>
                         </div>
                     </div>
 
+                    <!-- Multiplayer Lobby Screen -->
                     <div id="ttt-lobby-panel" class="ttt-lobby" style="display:none;">
                         <p id="my-id-display" style="font-size:14px; color:var(--accent-color); text-align:center;">Hooking signal relay...</p>
                         <div style="width:100%; border-bottom: 1px solid var(--glass-border); margin:5px 0;"></div>
@@ -372,6 +425,7 @@
                         <button class="menu-btn" style="text-align:center; margin-top:10px;" onclick="resetTTTEngine()">← Back</button>
                     </div>
 
+                    <!-- Actual Board Display -->
                     <div id="ttt-board-wrapper" style="display:none; text-align:center;">
                         <div class="control-row">
                             <button class="gauntlet-btn" style="padding:6px 16px; font-size:12px; background:#ff4757; color:#fff;" onclick="resetTTTEngine()">Leave Lobby</button>
@@ -404,7 +458,7 @@
         };
 
         // Reaction Game Logic
-        let reactionTimeout, startTime, gameActive = false, triggerReady = false;
+        let reactionTimeout, startTime, gameActive = false, triggerReady = false, activeReactionBet = 0;
         // Slot Machine Configuration
         const slotSymbols = ['🍒', '🍋', '🍇', '🔔', '💎', '7️⃣'];
         let slotsSpinning = false;
@@ -415,7 +469,7 @@
         let tttActive = false;
         let tttTurn = 'X'; 
         let tttMySymbol = 'X'; 
-        let peer = null, conn = null;
+        let peer = null, conn = null, activeTTTBet = 0;
 
         function updateUI() {
             document.getElementById('credit-count').innerText = state.credits;
@@ -460,6 +514,13 @@
         }
         function equipTheme(themeName) { state.activeTheme = state.activeTheme === themeName ? 'default' : themeName; updateUI(); }
 
+        // Core parsing helper for input elements
+        function parseValidWager(elementId) {
+            let val = parseInt(document.getElementById(elementId).value);
+            if(isNaN(val) || val < 0) return 0;
+            return val;
+        }
+
         // --- REACTION BLITZ GAME CODE ---
         const target = document.getElementById('reaction-target');
         const rText = document.getElementById('reaction-text');
@@ -468,11 +529,26 @@
         function resetReactionGame() {
             clearTimeout(reactionTimeout); gameActive = false; triggerReady = false;
             target.className = 'reaction-box'; rText.innerText = "Click to Start Experiment"; rSubtext.innerText = "";
+            document.getElementById('reaction-bet-panel').style.opacity = '1';
+            document.getElementById('reaction-bet').disabled = false;
         }
 
         function handleReactionClick() {
             if (!gameActive) {
+                activeReactionBet = parseValidWager('reaction-bet');
+                if (activeReactionBet > 0 && state.credits < activeReactionBet) {
+                    alert("Wager exceeds current treasury limits!");
+                    return;
+                }
+
+                // Deduct risk stake upfront if any
+                state.credits -= activeReactionBet;
+                updateUI();
+
                 gameActive = true; triggerReady = false; target.className = 'reaction-box waiting';
+                document.getElementById('reaction-bet-panel').style.opacity = '0.4';
+                document.getElementById('reaction-bet').disabled = true;
+
                 rText.innerText = 'Hold your focus... Wait for Green'; rSubtext.innerText = '';
                 let randomDelay = Math.floor(Math.random() * 3000) + 2000;
                 reactionTimeout = setTimeout(() => {
@@ -481,14 +557,30 @@
                 }, randomDelay);
             } else if (gameActive && !triggerReady) {
                 clearTimeout(reactionTimeout); gameActive = false; target.className = 'reaction-box';
-                rText.innerText = 'Too Early! Fault Detected.'; rSubtext.innerText = 'Click to try again.';
+                rText.innerText = 'Too Early! Fault Detected.'; 
+                rSubtext.innerText = `You squandered your stake of ${activeReactionBet} 🪙. Click to try again.`;
+                document.getElementById('reaction-bet-panel').style.opacity = '1';
+                document.getElementById('reaction-bet').disabled = false;
             } else if (gameActive && triggerReady) {
                 let endTime = window.performance.now();
                 let reactionTime = Math.round(endTime - startTime);
                 gameActive = false; triggerReady = false; target.className = 'reaction-box';
-                let earned = reactionTime < 200 ? 25 : reactionTime < 300 ? 15 : reactionTime < 450 ? 5 : 1;
-                state.credits += earned; rText.innerText = `${reactionTime} ms`;
-                rSubtext.innerText = `Excellent! You generated +${earned} credits. Click to play again.`;
+                
+                document.getElementById('reaction-bet-panel').style.opacity = '1';
+                document.getElementById('reaction-bet').disabled = false;
+
+                // Multiplier calculation engine scaled around user stake
+                let multiplier = reactionTime < 200 ? 3 : reactionTime < 300 ? 2 : reactionTime < 450 ? 1 : 0;
+                let returns = Math.round(activeReactionBet * multiplier);
+                
+                // If betting 0, fall back to a minor static payout framework
+                if (activeReactionBet === 0) {
+                    returns = reactionTime < 250 ? 5 : reactionTime < 400 ? 2 : 0;
+                }
+
+                state.credits += returns; 
+                rText.innerText = `${reactionTime} ms`;
+                rSubtext.innerText = multiplier > 1 ? `Excellent accuracy! Payout yield: +${returns} credits.` : `Yielded balance return: +${returns} credits.`;
                 updateUI();
             }
         }
@@ -496,13 +588,21 @@
         // --- NEON SLOTS GAME CODE ---
         function triggerSlotSpin() {
             if (slotsSpinning) return;
-            if (state.credits < 10) {
-                document.getElementById('slots-msg').style.color = '#ff4757';
-                document.getElementById('slots-msg').innerText = "Insufficient Credits!";
+            let currentSlotsBet = parseValidWager('slots-bet');
+            
+            if (currentSlotsBet <= 0) {
+                alert("Please declare a risk wager greater than 0!");
                 return;
             }
-            state.credits -= 10; slotsSpinning = true; updateUI();
+            if (state.credits < currentSlotsBet) {
+                document.getElementById('slots-msg').style.color = '#ff4757';
+                document.getElementById('slots-msg').innerText = "Insufficient Treasury Balance!";
+                return;
+            }
+
+            state.credits -= currentSlotsBet; slotsSpinning = true; updateUI();
             const spinBtn = document.getElementById('spin-btn'); const msgDisplay = document.getElementById('slots-msg');
+            document.getElementById('slots-bet').disabled = true;
             spinBtn.disabled = true; msgDisplay.innerText = "";
             const r1 = document.getElementById('reel-1'), r2 = document.getElementById('reel-2'), r3 = document.getElementById('reel-3');
             r1.classList.add('spinning'); r2.classList.add('spinning'); r3.classList.add('spinning');
@@ -517,29 +617,33 @@
             setTimeout(() => r2.classList.remove('spinning'), 1400);
             setTimeout(() => {
                 clearInterval(spinInterval); r3.classList.remove('spinning');
-                evaluateSlotsResults(r1.innerText, r2.innerText, r3.innerText);
+                evaluateSlotsResults(r1.innerText, r2.innerText, r3.innerText, currentSlotsBet);
             }, 1800);
         }
 
-        function evaluateSlotsResults(res1, res2, res3) {
+        function evaluateSlotsResults(res1, res2, res3, stake) {
             const msgDisplay = document.getElementById('slots-msg');
-            slotsSpinning = false; document.getElementById('spin-btn').disabled = false;
+            slotsSpinning = false; 
+            document.getElementById('spin-btn').disabled = false;
+            document.getElementById('slots-bet').disabled = false;
 
             if (res1 === res2 && res2 === res3) {
-                let multiplier = res1 === '7️⃣' ? 200 : res1 === '💎' ? 120 : res1 === '🔔' ? 80 : 50;
-                state.credits += multiplier; msgDisplay.style.color = 'var(--success-color)';
-                msgDisplay.innerText = `JACKPOT! Unlocked +${multiplier} credits!`;
+                let multiplier = res1 === '7️⃣' ? 25 : res1 === '💎' ? 15 : res1 === '🔔' ? 10 : 6;
+                let jackpotYield = stake * multiplier;
+                state.credits += jackpotYield; msgDisplay.style.color = 'var(--success-color)';
+                msgDisplay.innerText = `JACKPOT! Match 3 [${res1}] yielded +${jackpotYield} credits!`;
             } else if (res1 === res2 || res2 === res3 || res1 === res3) {
-                state.credits += 15; msgDisplay.style.color = 'var(--accent-color)'; msgDisplay.innerText = "Double Match! Earned +15 credits.";
+                let doubleYield = Math.floor(stake * 2);
+                state.credits += doubleYield; msgDisplay.style.color = 'var(--accent-color)'; 
+                msgDisplay.innerText = `Double Match! Returns: +${doubleYield} credits.`;
             } else {
-                msgDisplay.style.color = '#ff4757'; msgDisplay.innerText = "No Matches. Try again!";
+                msgDisplay.style.color = '#ff4757'; msgDisplay.innerText = "No Matches. Stake claimed by terminal.";
             }
             updateUI();
         }
 
         // --- TIC-TAC-TOE GAME ENGINE CODE ---
         function generateShortRoomID() {
-            // Generates a clean 5-digit uppercase string (e.g., F8W2K)
             const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
             let result = '';
             for (let i = 0; i < 5; i++) {
@@ -554,6 +658,8 @@
             document.getElementById('ttt-lobby-panel').style.display = 'none';
             document.getElementById('ttt-board-wrapper').style.display = 'none';
             document.getElementById('ttt-replay-btn').style.display = 'none';
+            document.getElementById('ttt-bet-panel').style.display = 'flex';
+            document.getElementById('ttt-bet').disabled = false;
             document.getElementById('ttt-msg').style.color = '#fff';
             clearGridRender();
             if(peer) { peer.destroy(); peer = null; conn = null; }
@@ -584,15 +690,37 @@
 
             if (winner) {
                 tttActive = false;
-                replayBtn.style.display = 'inline-block'; // Reveal Replay Element instantly
+                replayBtn.style.display = 'inline-block';
                 
-                if (winner === 'TIE') { msg.innerText = "Match Declaration: Tie Game!"; return; }
+                if (winner === 'TIE') { 
+                    msg.innerText = "Match Declaration: Tie Game! Wager retained."; 
+                    return; 
+                }
+
                 if (tttMode === 'ai') {
-                    if (winner === 'X') { msg.innerText = "Victory! Mainframe defeated (+15 🪙)"; state.credits += 15; }
-                    else { msg.style.color = '#ff4757'; msg.innerText = "AI Mainframe Wins!"; }
+                    if (winner === 'X') { 
+                        let winBonus = activeTTTBet > 0 ? activeTTTBet : 10;
+                        msg.innerText = `Victory! Mainframe defeated (+${winBonus} 🪙)`; 
+                        state.credits += winBonus; 
+                    } else { 
+                        // Deduct risk stake on loss, absolute minimum threshold capped at 0
+                        let effectiveLoss = Math.min(state.credits, activeTTTBet);
+                        state.credits = Math.max(0, state.credits - activeTTTBet);
+                        msg.style.color = '#ff4757'; 
+                        msg.innerText = effectiveLoss > 0 ? `AI Mainframe Wins! Cost: -${effectiveLoss} 🪙` : "AI Mainframe Wins!";
+                    }
                 } else {
-                    if (winner === tttMySymbol) { msg.innerText = "You Win the Match! (+20 🪙)"; state.credits += 20; }
-                    else { msg.style.color = '#ff4757'; msg.innerText = "Opponent Wins!"; }
+                    // Online Mode Settlement Architecture
+                    if (winner === tttMySymbol) { 
+                        let p2pBonus = activeTTTBet > 0 ? activeTTTBet : 15;
+                        msg.innerText = `You Win the Match! (+${p2pBonus} 🪙)`; 
+                        state.credits += p2pBonus; 
+                    } else { 
+                        let effectiveLoss = Math.min(state.credits, activeTTTBet);
+                        state.credits = Math.max(0, state.credits - activeTTTBet);
+                        msg.style.color = '#ff4757'; 
+                        msg.innerText = effectiveLoss > 0 ? `Opponent Wins! Cost: -${effectiveLoss} 🪙` : "Opponent Wins!";
+                    }
                 }
                 updateUI();
                 return;
@@ -606,15 +734,30 @@
         }
 
         function startTTTAI() {
+            activeTTTBet = parseValidWager('ttt-bet');
+            // If they have credits, ensure they aren't staking more than they own
+            if(state.credits > 0 && activeTTTBet > state.credits) {
+                alert("You cannot place a match stake greater than your current total portfolio!");
+                return;
+            }
+
             tttMode = 'ai'; tttActive = true; tttMySymbol = 'X'; tttTurn = 'X';
             document.getElementById('ttt-mode-select').style.display = 'none';
+            document.getElementById('ttt-bet-panel').style.display = 'none';
             document.getElementById('ttt-board-wrapper').style.display = 'block';
             document.getElementById('ttt-replay-btn').style.display = 'none';
             renderBoard();
         }
 
         function showTTTLobby() {
+            activeTTTBet = parseValidWager('ttt-bet');
+            if(state.credits > 0 && activeTTTBet > state.credits) {
+                alert("You cannot place a match stake greater than your current total portfolio!");
+                return;
+            }
+
             document.getElementById('ttt-mode-select').style.display = 'none';
+            document.getElementById('ttt-bet-panel').style.display = 'none';
             document.getElementById('ttt-lobby-panel').style.display = 'flex';
             document.getElementById('my-id-display').innerText = "Initializing server allocation...";
 
@@ -627,13 +770,17 @@
 
             peer.on('connection', (incomingConn) => {
                 conn = incomingConn;
-                tttMySymbol = 'X'; // Host plays X
+                tttMySymbol = 'X'; 
                 setupP2PListeners();
-                launchOnlineMatch();
+                
+                // Host transmits local bet configuration to client link
+                setTimeout(() => {
+                    conn.send({ type: 'sync-bet', bet: activeTTTBet });
+                    launchOnlineMatch();
+                }, 500);
             });
 
             peer.on('error', (err) => {
-                // If a short-code collision occurs, regenerate immediately
                 if(err.type === 'unavailable-id') {
                     peer.destroy();
                     showTTTLobby();
@@ -645,18 +792,17 @@
             const targetId = document.getElementById('join-id-input').value.trim().toUpperCase();
             if(!targetId) return alert("Please fill inside a valid short room identifier node!");
             
-            // Allocate setup via explicit user identification matching
             peer = new Peer();
             peer.on('open', () => {
                 conn = peer.connect(targetId);
-                tttMySymbol = 'O'; // Guest plays O
+                tttMySymbol = 'O'; 
                 setupP2PListeners();
             });
         }
 
         function setupP2PListeners() {
             conn.on('open', () => {
-                launchOnlineMatch();
+                // Connection complete
             });
             conn.on('data', (data) => {
                 if(data.type === 'move') {
@@ -665,6 +811,9 @@
                     renderBoard();
                 } else if(data.type === 'rematch') {
                     executeCleanRoundReset();
+                } else if(data.type === 'sync-bet') {
+                    activeTTTBet = data.bet;
+                    launchOnlineMatch();
                 }
             });
             conn.on('close', () => {
@@ -676,6 +825,7 @@
         function launchOnlineMatch() {
             tttMode = 'online'; tttActive = true; tttTurn = 'X';
             document.getElementById('ttt-lobby-panel').style.display = 'none';
+            document.getElementById('ttt-bet-panel').style.display = 'none';
             document.getElementById('ttt-board-wrapper').style.display = 'block';
             document.getElementById('ttt-replay-btn').style.display = 'none';
             clearGridRender();
@@ -692,7 +842,7 @@
         function executeCleanRoundReset() {
             tttBoard.fill('');
             tttActive = true;
-            tttTurn = 'X'; // Reset so 'X' makes the first move again
+            tttTurn = 'X'; 
             document.getElementById('ttt-replay-btn').style.display = 'none';
             clearGridRender();
             renderBoard();
