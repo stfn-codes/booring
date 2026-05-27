@@ -8,23 +8,21 @@
     <style>
         :root {
             --bg-color: #0b0c10;
-            --glass-bg: rgba(255, 255, 255, 0.02);
-            --glass-border: rgba(255, 255, 255, 0.06);
-            --text-color: #a4a6b0;
-            --text-light: #ffffff;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-color: #c5c6c7;
             --accent-color: #45f3ff;
-            --accent-glow: rgba(69, 243, 255, 0.25);
+            --accent-glow: rgba(69, 243, 255, 0.4);
             --success-color: #00ff88;
-            --card-radius: 16px;
         }
 
         body.theme-sunset {
             --accent-color: #ff4757;
-            --accent-glow: rgba(255, 71, 87, 0.25);
+            --accent-glow: rgba(255, 71, 87, 0.4);
         }
         body.theme-matrix {
             --accent-color: #00ff00;
-            --accent-glow: rgba(0, 255, 0, 0.25);
+            --accent-glow: rgba(0, 255, 0, 0.4);
         }
 
         * {
@@ -49,8 +47,8 @@
             justify-content: space-between;
             align-items: center;
             padding: 20px 40px;
-            background: rgba(11, 12, 16, 0.6);
-            backdrop-filter: blur(20px);
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--glass-border);
             position: sticky;
             top: 0;
@@ -58,33 +56,30 @@
         }
 
         .logo {
-            font-size: 22px;
-            font-weight: 900;
-            letter-spacing: 3px;
-            color: var(--text-light);
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: #fff;
             text-transform: uppercase;
         }
-        .logo span { color: var(--accent-color); text-shadow: 0 0 15px var(--accent-glow); }
+        .logo span { color: var(--accent-color); text-shadow: 0 0 10px var(--accent-glow); }
 
         .currency-display {
-            background: rgba(255, 255, 255, 0.04);
-            padding: 10px 22px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 20px;
             border-radius: 30px;
             border: 1px solid var(--glass-border);
-            font-weight: 700;
-            font-size: 14px;
-            color: var(--text-light);
+            font-weight: bold;
             display: flex;
             align-items: center;
             gap: 8px;
-            letter-spacing: 0.5px;
         }
         .currency-display span { color: var(--accent-color); }
 
         .container {
             display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 35px;
+            grid-template-columns: 280px 1fr;
+            gap: 30px;
             padding: 35px;
             max-width: 1400px;
             margin: 0 auto;
@@ -92,7 +87,6 @@
             flex-grow: 1;
         }
 
-        /* --- UPGRADED SIDEBAR MENU UI --- */
         aside {
             display: flex;
             flex-direction: column;
@@ -101,119 +95,61 @@
 
         .card {
             background: var(--glass-bg);
-            backdrop-filter: blur(15px);
+            backdrop-filter: blur(10px);
             border: 1px solid var(--glass-border);
-            border-radius: var(--card-radius);
-            padding: 24px;
+            border-radius: 16px;
+            padding: 20px;
         }
 
         .card h3 {
-            color: rgba(255, 255, 255, 0.4);
-            text-transform: uppercase;
-            font-size: 11px;
-            font-weight: 800;
-            letter-spacing: 2px;
-            margin-bottom: 16px;
-            padding-left: 8px;
-        }
-
-        .menu-navigation {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
+            color: #fff;
+            margin-bottom: 15px;
+            font-size: 18px;
+            letter-spacing: 0.5px;
         }
 
         .menu-btn {
             width: 100%;
             background: transparent;
-            border: none;
+            border: 1px solid transparent;
             color: var(--text-color);
-            padding: 14px 16px;
-            border-radius: 10px;
+            padding: 12px 15px;
+            border-radius: 8px;
             text-align: left;
             cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            position: relative;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            margin-bottom: 8px;
         }
-
-        .menu-btn::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%) scaleY(0.3);
-            width: 3px;
-            height: 16px;
-            background-color: var(--accent-color);
-            border-radius: 0 4px 4px 0;
-            opacity: 0;
-            transition: all 0.25s ease;
-        }
-
-        .menu-btn:hover {
-            color: var(--text-light);
-            background: rgba(255, 255, 255, 0.03);
-            padding-left: 20px;
-        }
-
-        .menu-btn.active {
+        .menu-btn.active, .menu-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--glass-border);
             color: var(--accent-color);
-            background: rgba(69, 243, 255, 0.04);
-            font-weight: 700;
             padding-left: 20px;
         }
 
-        body.theme-sunset .menu-btn.active {
-            background: rgba(255, 71, 87, 0.04);
-        }
-        body.theme-matrix .menu-btn.active {
-            background: rgba(0, 255, 0, 0.04);
-        }
-
-        .menu-btn.active::before {
-            opacity: 1;
-            transform: translateY(-50%) scaleY(1);
-            box-shadow: 0 0 10px var(--accent-color);
-        }
-
-        /* Shop Elements */
         .shop-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 8px;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
-            transition: background 0.2s;
-            border-radius: 8px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
         .shop-item:last-child { border: none; }
         .shop-btn {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-light);
-            border: 1px solid var(--glass-border);
-            padding: 8px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            transition: all 0.2s;
-        }
-        .shop-btn:hover {
             background: var(--accent-color);
             color: #000;
-            border-color: var(--accent-color);
-            box-shadow: 0 0 10px var(--accent-glow);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            transition: transform 0.2s;
         }
-        .shop-btn.owned { background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.3); cursor: default; border-color: transparent; }
+        .shop-btn:hover { transform: scale(1.05); }
+        .shop-btn.owned { background: rgba(255,255,255,0.1); color: #fff; cursor: default; transform: none; }
 
-        /* Stage Layout Work */
         .stage {
             display: flex;
             flex-direction: column;
@@ -226,9 +162,9 @@
         /* Game 1: Reaction Zone */
         .reaction-box {
             flex-grow: 1;
-            background: rgba(255, 255, 255, 0.01);
+            background: rgba(255, 255, 255, 0.02);
             border: 2px dashed var(--glass-border);
-            border-radius: var(--card-radius);
+            border-radius: 16px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -239,14 +175,14 @@
         }
         .reaction-box.waiting { background: #ff4757; color: #fff; border-color: transparent;}
         .reaction-box.ready { background: var(--success-color); color: #000; border-color: transparent;}
-        .reaction-box h2 { font-size: 28px; margin-bottom: 10px; text-align: center; color: inherit;}
+        .reaction-box h2 { font-size: 28px; margin-bottom: 10px; text-align: center;}
 
         /* Game 2: Casino Slot Machine */
         .slots-machine-container {
             flex-grow: 1;
             background: rgba(255, 255, 255, 0.01);
             border: 1px solid var(--glass-border);
-            border-radius: var(--card-radius);
+            border-radius: 16px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -259,68 +195,75 @@
             width: 110px; height: 140px; background: rgba(0, 0, 0, 0.4);
             border: 2px solid var(--glass-border); border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 55px; text-shadow: 0 0 10px rgba(255,255,255,0.1);
+            font-size: 55px; text-shadow: 0 0 10px rgba(255,255,255,0.2);
         }
         .reel.spinning { animation: jitter 0.1s infinite alternate; border-color: var(--accent-color); }
+        
         .spin-action-btn, .gauntlet-btn {
             background: linear-gradient(135deg, var(--accent-color), #00d2ff);
-            color: #000; border: none; padding: 14px 36px; font-size: 15px;
+            color: #000; border: none; padding: 12px 30px; font-size: 15px;
             font-weight: 800; border-radius: 30px; cursor: pointer; letter-spacing: 0.5px;
-            box-shadow: 0 4px 15px var(--accent-glow);
-            transition: all 0.25s ease;
+            transition: all 0.3s ease;
         }
-        .spin-action-btn:hover, .gauntlet-btn:hover { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 6px 20px var(--accent-glow); }
-        .spin-action-btn:disabled, .gauntlet-btn:disabled { background: #222; color: #555; cursor: not-allowed; transform: none; filter: none; box-shadow: none;}
-        .slots-status, .ttt-status { margin-top: 25px; font-size: 16px; font-weight: 600; min-height: 27px; color: var(--text-light); text-align: center; }
+        .spin-action-btn:hover, .gauntlet-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .spin-action-btn:disabled, .gauntlet-btn:disabled { background: #333; color: #777; cursor: not-allowed; transform: none; filter: none;}
+        .slots-status, .ttt-status { margin-top: 20px; font-size: 18px; font-weight: 600; min-height: 27px; color: #fff; text-align: center; }
 
-        /* Game 3: Tic-Tac-Toe Interface */
+        /* Game 3: Tic-Tac-Toe Upgrades */
         .ttt-container {
             flex-grow: 1;
             background: rgba(255,255,255, 0.01);
             border: 1px solid var(--glass-border);
-            border-radius: var(--card-radius);
+            border-radius: 16px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             padding: 40px;
         }
-        .ttt-setup, .ttt-lobby { display: flex; flex-direction: column; gap: 15px; align-items: center; width: 100%; max-width: 400px; }
+        .ttt-setup-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            width: 100%;
+            max-width: 580px;
+        }
+        .ttt-lobby { display: flex; flex-direction: column; gap: 15px; align-items: center; width: 100%; max-width: 400px; }
         .gauntlet-input {
-            width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border);
-            padding: 14px 20px; border-radius: 10px; color: #fff; font-size: 15px; text-align: center;
-            letter-spacing: 2px; font-weight: 700;
+            width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border);
+            padding: 12px 20px; border-radius: 8px; color: #fff; font-size: 14px; text-align: center; letter-spacing: 1px;
         }
         .gauntlet-input:focus { border-color: var(--accent-color); outline: none; }
-        .ttt-board { display: grid; grid-template-columns: repeat(3, 110px); grid-template-rows: repeat(3, 110px); gap: 12px; margin-top: 25px; }
+        .ttt-board { display: grid; grid-template-columns: repeat(3, 110px); grid-template-rows: repeat(3, 110px); gap: 12px; margin-top: 20px; }
         .ttt-cell {
-            background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border);
             border-radius: 12px; display: flex; align-items: center; justify-content: center;
             font-size: 42px; font-weight: 800; cursor: pointer; color: #fff; transition: all 0.2s;
         }
-        .ttt-cell:hover { background: rgba(255, 255, 255, 0.06); border-color: var(--accent-color); }
+        .ttt-cell:hover { background: rgba(255, 255, 255, 0.08); border-color: var(--accent-color); }
         .ttt-cell.taken { cursor: not-allowed; }
         .ttt-cell.x-mark { color: var(--accent-color); text-shadow: 0 0 10px var(--accent-glow); }
-        .ttt-cell.o-mark { color: #ff4757; text-shadow: 0 0 10px rgba(255, 71, 87, 0.3); }
+        .ttt-cell.o-mark { color: #ff4757; text-shadow: 0 0 10px rgba(255, 71, 87, 0.4); }
 
-        .room-code-display {
-            font-size: 26px; font-weight: 900; color: var(--text-light);
-            background: rgba(255,255,255,0.04); padding: 8px 24px;
-            border-radius: 10px; border: 1px solid var(--glass-border);
-            letter-spacing: 4px; margin: 10px 0; text-shadow: 0 0 10px rgba(255,255,255,0.1);
+        .control-row {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
         }
 
         @keyframes jitter { 0% { transform: translateY(-2px); } 100% { transform: translateY(2px); } }
 
         /* Grid View Layout */
-        .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; }
+        .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
         .game-card {
             background: var(--glass-bg); border: 1px solid var(--glass-border);
-            border-radius: var(--card-radius); padding: 30px 24px; text-align: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 12px; padding: 25px; text-align: center; cursor: pointer; transition: all 0.3s ease;
         }
-        .game-card:hover { transform: translateY(-5px); border-color: var(--accent-color); background: rgba(255,255,255,0.04); }
+        .game-card:hover { transform: translateY(-5px); border-color: var(--accent-color); }
         .game-card .icon { font-size: 40px; margin-bottom: 15px; }
-        .game-card h4 { color: var(--text-light); margin-bottom: 8px; font-size: 16px; }
-        .game-card p { font-size: 13px; color: rgba(164, 166, 176, 0.7); line-height: 1.5; }
+        .game-card h4 { color: #fff; margin-bottom: 8px; }
+        .game-card p { font-size: 13px; color: #888; }
     </style>
 </head>
 <body>
@@ -332,29 +275,27 @@
 
     <div class="container">
         <aside>
-            <div class="card" style="padding: 16px 12px;">
+            <div class="card">
                 <h3>Navigation</h3>
-                <div class="menu-navigation">
-                    <button class="menu-btn active" onclick="switchView('dashboard', this)">🎮 Dashboard</button>
-                    <button class="menu-btn" onclick="switchView('reaction-game', this)">⚡ Reaction Blitz</button>
-                    <button class="menu-btn" onclick="switchView('slots-game', this)">🎰 Slot Machine</button>
-                    <button class="menu-btn" onclick="switchView('ttt-game', this)">❌ Tic-Tac-Toe</button>
-                </div>
+                <button class="menu-btn active" onclick="switchView('dashboard', this)">🎮 Dashboard</button>
+                <button class="menu-btn" onclick="switchView('reaction-game', this)">⚡ Reaction Blitz</button>
+                <button class="menu-btn" onclick="switchView('slots-game', this)">🎰 Slot Machine</button>
+                <button class="menu-btn" onclick="switchView('ttt-game', this)">❌ Tic-Tac-Toe</button>
             </div>
 
             <div class="card">
                 <h3>Theme Shop</h3>
                 <div class="shop-item">
                     <div>
-                        <p style="color:var(--text-light); font-size:14px; font-weight:600;">Sunset Mode</p>
-                        <p style="font-size:11px; color:#666;">Cost: 50 🪙</p>
+                        <p style="color:#fff; font-size:14px;">Sunset Mode</p>
+                        <p style="font-size:11px; color:#888;">Cost: 50 🪙</p>
                     </div>
                     <button class="shop-btn" id="btn-sunset" onclick="buyTheme('sunset', 50)">Buy</button>
                 </div>
                 <div class="shop-item">
                     <div>
-                        <p style="color:var(--text-light); font-size:14px; font-weight:600;">Matrix Terminal</p>
-                        <p style="font-size:11px; color:#666;">Cost: 100 🪙</p>
+                        <p style="color:#fff; font-size:14px;">Matrix Terminal</p>
+                        <p style="font-size:11px; color:#888;">Cost: 100 🪙</p>
                     </div>
                     <button class="shop-btn" id="btn-matrix" onclick="buyTheme('matrix', 100)">Buy</button>
                 </div>
@@ -363,7 +304,7 @@
 
         <main class="stage">
             <div id="dashboard" class="view active">
-                <h2 style="color: var(--text-light); margin-bottom: 25px; font-weight: 800;">Select a Gauntlet Challenge</h2>
+                <h2 style="color: #fff; margin-bottom: 25px;">Select a Gauntlet Challenge</h2>
                 <div class="games-grid">
                     <div class="game-card" onclick="document.querySelectorAll('.menu-btn')[1].click()">
                         <div class="icon">⚡</div>
@@ -384,16 +325,16 @@
             </div>
 
             <div id="reaction-game" class="view">
-                <h2 style="color: var(--text-light); margin-bottom: 15px; font-weight: 800;">Reaction Blitz</h2>
+                <h2 style="color: #fff; margin-bottom: 15px;">Reaction Blitz</h2>
                 <p style="margin-bottom: 20px; font-size: 14px;">Click the target box when it snaps from red to green. Don't click early!</p>
                 <div class="reaction-box" id="reaction-target" onclick="handleReactionClick()">
-                    <h2 id="reaction-text" style="color: var(--text-light);">Click to Start Experiment</h2>
+                    <h2 id="reaction-text">Click to Start Experiment</h2>
                     <p id="reaction-subtext"></p>
                 </div>
             </div>
 
             <div id="slots-game" class="view">
-                <h2 style="color: var(--text-light); margin-bottom: 15px; font-weight: 800;">Neon Slots</h2>
+                <h2 style="color: #fff; margin-bottom: 15px;">Neon Slots</h2>
                 <p style="margin-bottom: 20px; font-size: 14px;">Test your luck. Every spin consumes 10 credits.</p>
                 <div class="slots-machine-container">
                     <div class="slots-reels">
@@ -407,25 +348,35 @@
             </div>
 
             <div id="ttt-game" class="view">
-                <h2 style="color: var(--text-light); margin-bottom: 15px; font-weight: 800;">Tic-Tac-Toe Engine</h2>
+                <h2 style="color: #fff; margin-bottom: 15px;">Tic-Tac-Toe Engine</h2>
                 <div class="ttt-container">
-                    <div id="ttt-mode-select" class="ttt-setup">
-                        <button class="gauntlet-btn" style="width:100%" onclick="startTTTAI()">Play vs AI Mainframe</button>
-                        <button class="gauntlet-btn" style="width:100%" onclick="showTTTLobby()">Open Online P2P Lobby</button>
+                    
+                    <div id="ttt-mode-select" class="ttt-setup-grid">
+                        <div class="game-card" onclick="startTTTAI()">
+                            <div class="icon">🤖</div>
+                            <h4>Mainframe AI</h4>
+                            <p style="font-size:12px; color:#888; margin-top:8px;">Combat a core heuristic script rule set. Instant match loops.</p>
+                        </div>
+                        <div class="game-card" onclick="showTTTLobby()">
+                            <div class="icon">🌐</div>
+                            <h4>P2P Nexus Lobby</h4>
+                            <p style="font-size:12px; color:#888; margin-top:8px;">Generate a shortened short-code link to host a real friend.</p>
+                        </div>
                     </div>
 
                     <div id="ttt-lobby-panel" class="ttt-lobby" style="display:none;">
-                        <p style="font-size:13px; color:var(--text-color);">Your Room Code:</p>
-                        <div class="room-code-display" id="my-id-display">-----</div>
-                        <p style="color:#666; font-size:11px; text-align:center; margin-bottom:10px;">Share this short code with your opponent.</p>
+                        <p id="my-id-display" style="font-size:14px; color:var(--accent-color); text-align:center;">Hooking signal relay...</p>
                         <div style="width:100%; border-bottom: 1px solid var(--glass-border); margin:5px 0;"></div>
-                        <input type="text" id="join-id-input" class="gauntlet-input" placeholder="ENTER ROOM CODE">
-                        <button class="gauntlet-btn" style="width:100%" onclick="connectToPeer()">Connect & Play</button>
-                        <button class="gauntlet-btn" style="width:100%; background:transparent; border:1px solid var(--glass-border); color:#fff; margin-top:5px;" onclick="resetTTTEngine()">← Back</button>
+                        <input type="text" id="join-id-input" class="gauntlet-input" placeholder="Enter Friend's 5-Digit ID">
+                        <button class="gauntlet-btn" style="width:100%" onclick="connectToPeer()">Connect & Sync</button>
+                        <button class="menu-btn" style="text-align:center; margin-top:10px;" onclick="resetTTTEngine()">← Back</button>
                     </div>
 
                     <div id="ttt-board-wrapper" style="display:none; text-align:center;">
-                        <button class="gauntlet-btn" style="padding:6px 18px; font-size:12px; background:rgba(255,255,255,0.05); color:#fff; border:1px solid var(--glass-border); box-shadow:none;" onclick="resetTTTEngine()">Quit Game</button>
+                        <div class="control-row">
+                            <button class="gauntlet-btn" style="padding:6px 16px; font-size:12px; background:#ff4757; color:#fff;" onclick="resetTTTEngine()">Leave Lobby</button>
+                            <button class="gauntlet-btn" id="ttt-replay-btn" style="padding:6px 16px; font-size:12px; display:none;" onclick="handleTTTRematchRequest()">Play Again 🔄</button>
+                        </div>
                         <div class="ttt-board" id="ttt-grid">
                             <div class="ttt-cell" onclick="handleTTTClick(0)"></div>
                             <div class="ttt-cell" onclick="handleTTTClick(1)"></div>
@@ -587,9 +538,9 @@
         }
 
         // --- TIC-TAC-TOE GAME ENGINE CODE ---
-        function generateShortID() {
-            // Generates a clean 5-character alphanumeric uppercase room string
-            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Omitted confusing chars like 1, I, 0, O
+        function generateShortRoomID() {
+            // Generates a clean 5-digit uppercase string (e.g., F8W2K)
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
             let result = '';
             for (let i = 0; i < 5; i++) {
                 result += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -599,9 +550,10 @@
 
         function resetTTTEngine() {
             tttBoard.fill(''); tttActive = false; tttTurn = 'X';
-            document.getElementById('ttt-mode-select').style.display = 'flex';
+            document.getElementById('ttt-mode-select').style.display = 'grid';
             document.getElementById('ttt-lobby-panel').style.display = 'none';
             document.getElementById('ttt-board-wrapper').style.display = 'none';
+            document.getElementById('ttt-replay-btn').style.display = 'none';
             document.getElementById('ttt-msg').style.color = '#fff';
             clearGridRender();
             if(peer) { peer.destroy(); peer = null; conn = null; }
@@ -626,11 +578,14 @@
 
         function updateTTTStatusMessage() {
             const msg = document.getElementById('ttt-msg');
+            const replayBtn = document.getElementById('ttt-replay-btn');
             msg.style.color = '#fff';
             let winner = checkWinner();
 
             if (winner) {
                 tttActive = false;
+                replayBtn.style.display = 'inline-block'; // Reveal Replay Element instantly
+                
                 if (winner === 'TIE') { msg.innerText = "Match Declaration: Tie Game!"; return; }
                 if (tttMode === 'ai') {
                     if (winner === 'X') { msg.innerText = "Victory! Mainframe defeated (+15 🪙)"; state.credits += 15; }
@@ -654,56 +609,48 @@
             tttMode = 'ai'; tttActive = true; tttMySymbol = 'X'; tttTurn = 'X';
             document.getElementById('ttt-mode-select').style.display = 'none';
             document.getElementById('ttt-board-wrapper').style.display = 'block';
+            document.getElementById('ttt-replay-btn').style.display = 'none';
             renderBoard();
         }
 
         function showTTTLobby() {
             document.getElementById('ttt-mode-select').style.display = 'none';
             document.getElementById('ttt-lobby-panel').style.display = 'flex';
-            document.getElementById('my-id-display').innerText = "CALCULATING...";
+            document.getElementById('my-id-display').innerText = "Initializing server allocation...";
 
-            // Create custom room string ID instead of letting PeerJS assign a long UUID
-            const targetRoomCode = generateShortID();
-            peer = new Peer(targetRoomCode);
+            const shortID = generateShortRoomID();
+            peer = new Peer(shortID);
             
             peer.on('open', (id) => {
-                document.getElementById('my-id-display').innerText = id;
+                document.getElementById('my-id-display').innerHTML = `Room ID: <strong style="color:#fff; font-size:16px; background:rgba(255,255,255,0.1); padding:4px 12px; border-radius:6px; letter-spacing:1px;">${id}</strong><br><span style="color:#888; font-size:11px; display:block; margin-top:5px;">Pass this shortcode to your peer terminal.</span>`;
             });
 
             peer.on('connection', (incomingConn) => {
                 conn = incomingConn;
-                tttMySymbol = 'X'; 
+                tttMySymbol = 'X'; // Host plays X
                 setupP2PListeners();
                 launchOnlineMatch();
             });
 
             peer.on('error', (err) => {
-                // If code collision happens on public cloud server, automatically retry generation loop
-                if (err.type === 'unavailable-id') {
+                // If a short-code collision occurs, regenerate immediately
+                if(err.type === 'unavailable-id') {
                     peer.destroy();
                     showTTTLobby();
-                } else {
-                    alert("Network error: " + err.type);
-                    resetTTTEngine();
                 }
             });
         }
 
         function connectToPeer() {
             const targetId = document.getElementById('join-id-input').value.trim().toUpperCase();
-            if(!targetId) return alert("Please type a valid room code.");
+            if(!targetId) return alert("Please fill inside a valid short room identifier node!");
             
-            // Open local peer client handle to route handshake to host
+            // Allocate setup via explicit user identification matching
             peer = new Peer();
             peer.on('open', () => {
                 conn = peer.connect(targetId);
-                tttMySymbol = 'O'; 
+                tttMySymbol = 'O'; // Guest plays O
                 setupP2PListeners();
-            });
-
-            peer.on('error', (err) => {
-                alert("Could not connect to room. Verify code is active.");
-                resetTTTEngine();
             });
         }
 
@@ -716,10 +663,12 @@
                     tttBoard[data.index] = tttTurn;
                     tttTurn = tttTurn === 'X' ? 'O' : 'X';
                     renderBoard();
+                } else if(data.type === 'rematch') {
+                    executeCleanRoundReset();
                 }
             });
             conn.on('close', () => {
-                alert("Opponent left the lobby.");
+                alert("Opponent dropped the node connection.");
                 resetTTTEngine();
             });
         }
@@ -728,6 +677,24 @@
             tttMode = 'online'; tttActive = true; tttTurn = 'X';
             document.getElementById('ttt-lobby-panel').style.display = 'none';
             document.getElementById('ttt-board-wrapper').style.display = 'block';
+            document.getElementById('ttt-replay-btn').style.display = 'none';
+            clearGridRender();
+            renderBoard();
+        }
+
+        function handleTTTRematchRequest() {
+            if (tttMode === 'online' && conn) {
+                conn.send({ type: 'rematch' });
+            }
+            executeCleanRoundReset();
+        }
+
+        function executeCleanRoundReset() {
+            tttBoard.fill('');
+            tttActive = true;
+            tttTurn = 'X'; // Reset so 'X' makes the first move again
+            document.getElementById('ttt-replay-btn').style.display = 'none';
+            clearGridRender();
             renderBoard();
         }
 
@@ -742,13 +709,12 @@
             if (tttMode === 'online' && conn) {
                 conn.send({ type: 'move', index: idx });
             } else if (tttMode === 'ai' && tttActive && tttTurn === 'O') {
-                setTimeout(executeAIMove, 500); 
+                setTimeout(executeAIMove, 400); 
             }
         }
 
         function executeAIMove() {
             if(!tttActive) return;
-            
             let move = findWinningMove('O') || findWinningMove('X') || (tttBoard[4] === '' ? 4 : -1);
             
             if(move === -1) {
