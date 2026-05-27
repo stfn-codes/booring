@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Boredom Gauntlet</title>
+    <!-- PeerJS CDN for Serverless Static Multiplayer -->
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
         :root {
             --bg-color: #0b0c10;
@@ -15,7 +17,6 @@
             --success-color: #00ff88;
         }
 
-        /* Themes unlocked via Shop */
         body.theme-sunset {
             --accent-color: #ff4757;
             --accent-glow: rgba(255, 71, 87, 0.4);
@@ -42,7 +43,6 @@
             overflow-x: hidden;
         }
 
-        /* Navbar / Header */
         header {
             display: flex;
             justify-content: space-between;
@@ -77,7 +77,6 @@
         }
         .currency-display span { color: var(--accent-color); }
 
-        /* Main Grid Layout */
         .container {
             display: grid;
             grid-template-columns: 280px 1fr;
@@ -89,7 +88,6 @@
             flex-grow: 1;
         }
 
-        /* Navigation / Shop Sidebar */
         aside {
             display: flex;
             flex-direction: column;
@@ -131,7 +129,6 @@
             padding-left: 20px;
         }
 
-        /* Shop Items */
         .shop-item {
             display: flex;
             justify-content: space-between;
@@ -154,7 +151,6 @@
         .shop-btn:hover { transform: scale(1.05); }
         .shop-btn.owned { background: rgba(255,255,255,0.1); color: #fff; cursor: default; transform: none; }
 
-        /* Game Stage Area */
         .stage {
             display: flex;
             flex-direction: column;
@@ -164,7 +160,7 @@
         .view { display: none; width: 100%; height: 100%; }
         .view.active { display: flex; flex-direction: column; }
 
-        /* Game 1: Reaction Zone styles */
+        /* Game 1: Reaction Zone */
         .reaction-box {
             flex-grow: 1;
             background: rgba(255, 255, 255, 0.02);
@@ -177,13 +173,12 @@
             cursor: pointer;
             transition: background 0.1s ease, border-color 0.3s;
             min-height: 400px;
-            position: relative;
         }
         .reaction-box.waiting { background: #ff4757; color: #fff; border-color: transparent;}
         .reaction-box.ready { background: var(--success-color); color: #000; border-color: transparent;}
         .reaction-box h2 { font-size: 28px; margin-bottom: 10px; text-align: center;}
 
-        /* Game 2: Casino Slot Machine styles */
+        /* Game 2: Casino Slot Machine */
         .slots-machine-container {
             flex-grow: 1;
             background: rgba(255, 255, 255, 0.01);
@@ -196,84 +191,61 @@
             padding: 40px;
             min-height: 400px;
         }
-        .slots-reels {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 35px;
-        }
+        .slots-reels { display: flex; gap: 20px; margin-bottom: 35px; }
         .reel {
-            width: 110px;
-            height: 140px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 2px solid var(--glass-border);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 55px;
-            text-shadow: 0 0 10px rgba(255,255,255,0.2);
-            transition: border-color 0.2s, transform 0.1s;
+            width: 110px; height: 140px; background: rgba(0, 0, 0, 0.4);
+            border: 2px solid var(--glass-border); border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 55px; text-shadow: 0 0 10px rgba(255,255,255,0.2);
         }
-        .reel.spinning {
-            animation: jitter 0.1s infinite alternate;
-            border-color: var(--accent-color);
-        }
-        .spin-action-btn {
+        .reel.spinning { animation: jitter 0.1s infinite alternate; border-color: var(--accent-color); }
+        .spin-action-btn, .gauntlet-btn {
             background: linear-gradient(135deg, var(--accent-color), #00d2ff);
-            color: #000;
-            border: none;
-            padding: 15px 40px;
-            font-size: 18px;
-            font-weight: 800;
-            border-radius: 30px;
-            cursor: pointer;
-            letter-spacing: 1px;
-            box-shadow: 0 4px 20px var(--accent-glow);
+            color: #000; border: none; padding: 12px 30px; font-size: 16px;
+            font-weight: 800; border-radius: 30px; cursor: pointer; letter-spacing: 0.5px;
             transition: all 0.3s ease;
         }
-        .spin-action-btn:hover:not(:disabled) {
-            transform: translateY(-2px) scale(1.03);
-            box-shadow: 0 6px 25px var(--accent-glow);
-        }
-        .spin-action-btn:disabled {
-            background: #333;
-            color: #777;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-        .slots-status {
-            margin-top: 25px;
-            font-size: 18px;
-            font-weight: 600;
-            min-height: 27px;
-            color: #fff;
-            text-align: center;
-        }
+        .spin-action-btn:hover, .gauntlet-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .spin-action-btn:disabled, .gauntlet-btn:disabled { background: #333; color: #777; cursor: not-allowed; transform: none; filter: none;}
+        .slots-status, .ttt-status { margin-top: 25px; font-size: 18px; font-weight: 600; min-height: 27px; color: #fff; text-align: center; }
 
-        @keyframes jitter {
-            0% { transform: translateY(-2px); }
-            100% { transform: translateY(2px); }
+        /* Game 3: Tic-Tac-Toe Interface */
+        .ttt-container {
+            flex-grow: 1;
+            background: rgba(255,255,255, 0.01);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px;
         }
+        .ttt-setup, .ttt-lobby { display: flex; flex-direction: column; gap: 15px; align-items: center; width: 100%; max-width: 400px; }
+        .gauntlet-input {
+            width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border);
+            padding: 12px 20px; border-radius: 8px; color: #fff; font-size: 14px; text-align: center;
+        }
+        .gauntlet-input:focus { border-color: var(--accent-color); outline: none; }
+        .ttt-board { display: grid; grid-template-columns: repeat(3, 110px); grid-template-rows: repeat(3, 110px); gap: 12px; margin-top: 20px; }
+        .ttt-cell {
+            background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border);
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            font-size: 42px; font-weight: 800; cursor: pointer; color: #fff; transition: all 0.2s;
+        }
+        .ttt-cell:hover { background: rgba(255, 255, 255, 0.08); border-color: var(--accent-color); }
+        .ttt-cell.taken { cursor: not-allowed; }
+        .ttt-cell.x-mark { color: var(--accent-color); text-shadow: 0 0 10px var(--accent-glow); }
+        .ttt-cell.o-mark { color: #ff4757; text-shadow: 0 0 10px rgba(255, 71, 87, 0.4); }
+
+        @keyframes jitter { 0% { transform: translateY(-2px); } 100% { transform: translateY(2px); } }
 
         /* Grid View Layout */
-        .games-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 20px;
-        }
+        .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
         .game-card {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            padding: 25px;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.3s ease, border-color 0.3s;
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            border-radius: 12px; padding: 25px; text-align: center; cursor: pointer; transition: all 0.3s ease;
         }
-        .game-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent-color);
-        }
+        .game-card:hover { transform: translateY(-5px); border-color: var(--accent-color); }
         .game-card .icon { font-size: 40px; margin-bottom: 15px; }
         .game-card h4 { color: #fff; margin-bottom: 8px; }
         .game-card p { font-size: 13px; color: #888; }
@@ -291,8 +263,9 @@
             <div class="card">
                 <h3>Navigation</h3>
                 <button class="menu-btn active" onclick="switchView('dashboard', this)">🎮 Dashboard</button>
-                <button class="menu-btn" onclick="switchView('reaction-game', this)">⚡ Reaction Time</button>
+                <button class="menu-btn" onclick="switchView('reaction-game', this)">⚡ Reaction Blitz</button>
                 <button class="menu-btn" onclick="switchView('slots-game', this)">🎰 Slot Machine</button>
+                <button class="menu-btn" onclick="switchView('ttt-game', this)">❌ Tic-Tac-Toe</button>
             </div>
 
             <div class="card">
@@ -329,10 +302,10 @@
                         <h4>Neon Slots</h4>
                         <p>Risk your hard-earned wealth. 10 credits per pull. Big Jackpots await.</p>
                     </div>
-                    <div class="game-card" style="opacity: 0.5; cursor: not-allowed;">
+                    <div class="game-card" onclick="document.querySelectorAll('.menu-btn')[3].click()">
                         <div class="icon">❌</div>
-                        <h4>Tic-Tac-Toe Smart</h4>
-                        <p>Coming soon: Outsmart the matrix engine.</p>
+                        <h4>Tic-Tac-Toe Protocol</h4>
+                        <p>Play against our defensive mainframe AI or spin up a direct global P2P lobby.</p>
                     </div>
                 </div>
             </div>
@@ -351,7 +324,6 @@
             <div id="slots-game" class="view">
                 <h2 style="color: #fff; margin-bottom: 15px;">Neon Slots</h2>
                 <p style="margin-bottom: 20px; font-size: 14px;">Test your luck. Every spin consumes 10 credits.</p>
-                
                 <div class="slots-machine-container">
                     <div class="slots-reels">
                         <div class="reel" id="reel-1">🍒</div>
@@ -362,26 +334,68 @@
                     <div class="slots-status" id="slots-msg"></div>
                 </div>
             </div>
+
+            <!-- TIC-TAC-TOE VIEW -->
+            <div id="ttt-game" class="view">
+                <h2 style="color: #fff; margin-bottom: 15px;">Tic-Tac-Toe Engine</h2>
+                <div class="ttt-container">
+                    <!-- Mode Selection Screen -->
+                    <div id="ttt-mode-select" class="ttt-setup">
+                        <button class="gauntlet-btn" style="width:100%" onclick="startTTTAI()">Play vs AI Mainframe</button>
+                        <button class="gauntlet-btn" style="width:100%" onclick="showTTTLobby()">Open Online P2P Lobby</button>
+                    </div>
+
+                    <!-- Multiplayer Lobby Screen -->
+                    <div id="ttt-lobby-panel" class="ttt-lobby" style="display:none;">
+                        <p id="my-id-display" style="font-size:13px; color:var(--accent-color);">Generating your Room ID...</p>
+                        <div style="width:100%; border-bottom: 1px solid var(--glass-border); margin:5px 0;"></div>
+                        <input type="text" id="join-id-input" class="gauntlet-input" placeholder="Paste Friend's Room ID here">
+                        <button class="gauntlet-btn" style="width:100%" onclick="connectToPeer()">Connect & Play</button>
+                        <button class="menu-btn" style="text-align:center;" onclick="resetTTTEngine()">← Back</button>
+                    </div>
+
+                    <!-- Actual Board Display -->
+                    <div id="ttt-board-wrapper" style="display:none; text-align:center;">
+                        <button class="gauntlet-btn" style="padding:5px 15px; font-size:12px;" onclick="resetTTTEngine()">Quit Game</button>
+                        <div class="ttt-board" id="ttt-grid">
+                            <div class="ttt-cell" onclick="handleTTTClick(0)"></div>
+                            <div class="ttt-cell" onclick="handleTTTClick(1)"></div>
+                            <div class="ttt-cell" onclick="handleTTTClick(2)"></div>
+                            <div class="ttt-cell" onclick="handleTTTClick(3)"></div>
+                            <div class="ttt-cell" onclick="handleTTTClick(4)"></div>
+                            <div class="ttt-cell" onclick="handleTTTClick(5)"></div>
+                            <div class="ttt-cell" onclick="handleTTTClick(6)"></div>
+                            <div class="ttt-cell" onclick="handleTTTClick(7)"></div>
+                            <div class="ttt-cell" onclick="handleTTTClick(8)"></div>
+                        </div>
+                        <div class="ttt-status" id="ttt-msg">Your Turn</div>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
     <script>
         // Game State Core
         let state = {
-            credits: parseInt(localStorage.getItem('g_credits')) || 25, // Starts with 25 so they can play right away
+            credits: parseInt(localStorage.getItem('g_credits')) || 25,
             unlockedThemes: JSON.parse(localStorage.getItem('g_themes')) || ['default'],
             activeTheme: localStorage.getItem('g_active_theme') || 'default'
         };
 
-        // Reaction Game Configuration
-        let reactionTimeout;
-        let startTime;
-        let gameActive = false;
-        let triggerReady = false;
-
+        // Reaction Game Logic
+        let reactionTimeout, startTime, gameActive = false, triggerReady = false;
         // Slot Machine Configuration
         const slotSymbols = ['🍒', '🍋', '🍇', '🔔', '💎', '7️⃣'];
         let slotsSpinning = false;
+
+        // Tic-Tac-Toe State Configurations
+        let tttBoard = Array(9).fill('');
+        let tttMode = ''; // 'ai' or 'online'
+        let tttActive = false;
+        let tttTurn = 'X'; // X always starts
+        let tttMySymbol = 'X'; 
+        let peer = null, conn = null;
 
         function updateUI() {
             document.getElementById('credit-count').innerText = state.credits;
@@ -389,7 +403,6 @@
             localStorage.setItem('g_themes', JSON.stringify(state.unlockedThemes));
             localStorage.setItem('g_active_theme', state.activeTheme);
 
-            // Handle Shop button updates
             state.unlockedThemes.forEach(theme => {
                 const btn = document.getElementById(`btn-${theme}`);
                 if(btn) {
@@ -399,26 +412,20 @@
                 }
             });
 
-            // Set current body theme class
             document.body.className = '';
-            if(state.activeTheme !== 'default') {
-                document.body.classList.add(`theme-${state.activeTheme}`);
-            }
+            if(state.activeTheme !== 'default') document.body.classList.add(`theme-${state.activeTheme}`);
         }
 
-        // View Switcher logic
         function switchView(viewId, element) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
-            
             document.getElementById(viewId).classList.add('active');
             if(element) element.classList.add('active');
 
-            // Reset specific game cycles if exiting viewports
             if(viewId !== 'reaction-game') resetReactionGame();
+            if(viewId !== 'ttt-game') resetTTTEngine();
         }
 
-        // Shop Operations
         function buyTheme(themeName, cost) {
             if(state.credits >= cost && !state.unlockedThemes.includes(themeName)) {
                 state.credits -= cost;
@@ -428,14 +435,10 @@
             } else if (state.unlockedThemes.includes(themeName)) {
                 equipTheme(themeName);
             } else {
-                alert("Insufficient credits! Play more games.");
+                alert("Insufficient credits!");
             }
         }
-
-        function equipTheme(themeName) {
-            state.activeTheme = state.activeTheme === themeName ? 'default' : themeName;
-            updateUI();
-        }
+        function equipTheme(themeName) { state.activeTheme = state.activeTheme === themeName ? 'default' : themeName; updateUI(); }
 
         // --- REACTION BLITZ GAME CODE ---
         const target = document.getElementById('reaction-target');
@@ -443,51 +446,28 @@
         const rSubtext = document.getElementById('reaction-subtext');
 
         function resetReactionGame() {
-            clearTimeout(reactionTimeout);
-            gameActive = false;
-            triggerReady = false;
-            target.className = 'reaction-box';
-            rText.innerText = "Click to Start Experiment";
-            rSubtext.innerText = "";
+            clearTimeout(reactionTimeout); gameActive = false; triggerReady = false;
+            target.className = 'reaction-box'; rText.innerText = "Click to Start Experiment"; rSubtext.innerText = "";
         }
 
         function handleReactionClick() {
             if (!gameActive) {
-                gameActive = true;
-                triggerReady = false;
-                target.className = 'reaction-box waiting';
-                rText.innerText = 'Hold your focus... Wait for Green';
-                rSubtext.innerText = '';
-
+                gameActive = true; triggerReady = false; target.className = 'reaction-box waiting';
+                rText.innerText = 'Hold your focus... Wait for Green'; rSubtext.innerText = '';
                 let randomDelay = Math.floor(Math.random() * 3000) + 2000;
                 reactionTimeout = setTimeout(() => {
-                    triggerReady = true;
-                    target.className = 'reaction-box ready';
-                    rText.innerText = 'CLICK NOW!';
+                    triggerReady = true; target.className = 'reaction-box ready'; rText.innerText = 'CLICK NOW!';
                     startTime = window.performance.now();
                 }, randomDelay);
-
             } else if (gameActive && !triggerReady) {
-                clearTimeout(reactionTimeout);
-                gameActive = false;
-                target.className = 'reaction-box';
-                rText.innerText = 'Too Early! Fault Detected.';
-                rSubtext.innerText = 'Click to try again.';
+                clearTimeout(reactionTimeout); gameActive = false; target.className = 'reaction-box';
+                rText.innerText = 'Too Early! Fault Detected.'; rSubtext.innerText = 'Click to try again.';
             } else if (gameActive && triggerReady) {
                 let endTime = window.performance.now();
                 let reactionTime = Math.round(endTime - startTime);
-                gameActive = false;
-                triggerReady = false;
-                target.className = 'reaction-box';
-                
-                let earned = 0;
-                if(reactionTime < 200) earned = 25;
-                else if(reactionTime < 300) earned = 15;
-                else if(reactionTime < 450) earned = 5;
-                else earned = 1;
-
-                state.credits += earned;
-                rText.innerText = `${reactionTime} ms`;
+                gameActive = false; triggerReady = false; target.className = 'reaction-box';
+                let earned = reactionTime < 200 ? 25 : reactionTime < 300 ? 15 : reactionTime < 450 ? 5 : 1;
+                state.credits += earned; rText.innerText = `${reactionTime} ms`;
                 rSubtext.innerText = `Excellent! You generated +${earned} credits. Click to play again.`;
                 updateUI();
             }
@@ -498,85 +478,213 @@
             if (slotsSpinning) return;
             if (state.credits < 10) {
                 document.getElementById('slots-msg').style.color = '#ff4757';
-                document.getElementById('slots-msg').innerText = "Insufficient Credits! Play Reaction Blitz to earn more.";
+                document.getElementById('slots-msg').innerText = "Insufficient Credits!";
                 return;
             }
+            state.credits -= 10; slotsSpinning = true; updateUI();
+            const spinBtn = document.getElementById('spin-btn'); const msgDisplay = document.getElementById('slots-msg');
+            spinBtn.disabled = true; msgDisplay.innerText = "";
+            const r1 = document.getElementById('reel-1'), r2 = document.getElementById('reel-2'), r3 = document.getElementById('reel-3');
+            r1.classList.add('spinning'); r2.classList.add('spinning'); r3.classList.add('spinning');
 
-            // Deduct cost
-            state.credits -= 10;
-            slotsSpinning = true;
-            updateUI();
-
-            const spinBtn = document.getElementById('spin-btn');
-            const msgDisplay = document.getElementById('slots-msg');
-            spinBtn.disabled = true;
-            msgDisplay.innerText = "";
-
-            const r1 = document.getElementById('reel-1');
-            const r2 = document.getElementById('reel-2');
-            const r3 = document.getElementById('reel-3');
-
-            r1.classList.add('spinning');
-            r2.classList.add('spinning');
-            r3.classList.add('spinning');
-
-            // Simulate slot movement interval 
             let spinInterval = setInterval(() => {
                 r1.innerText = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
                 r2.innerText = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
                 r3.innerText = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
             }, 70);
 
-            // Cascade stopping times for each individual reel
+            setTimeout(() => r1.classList.remove('spinning'), 1000);
+            setTimeout(() => r2.classList.remove('spinning'), 1400);
             setTimeout(() => {
-                r1.classList.remove('spinning');
-            }, 1000);
-
-            setTimeout(() => {
-                r2.classList.remove('spinning');
-            }, 1400);
-
-            setTimeout(() => {
-                clearInterval(spinInterval);
-                r3.classList.remove('spinning');
-                
-                // Final evaluations
+                clearInterval(spinInterval); r3.classList.remove('spinning');
                 evaluateSlotsResults(r1.innerText, r2.innerText, r3.innerText);
             }, 1800);
         }
 
         function evaluateSlotsResults(res1, res2, res3) {
             const msgDisplay = document.getElementById('slots-msg');
-            const spinBtn = document.getElementById('spin-btn');
-            slotsSpinning = false;
-            spinBtn.disabled = false;
+            slotsSpinning = false; document.getElementById('spin-btn').disabled = false;
 
-            // Payout structural evaluation
             if (res1 === res2 && res2 === res3) {
-                // Triple combination
-                let multiplier = 50;
-                if(res1 === '7️⃣') multiplier = 200;
-                else if(res1 === '💎') multiplier = 120;
-                else if(res1 === '🔔') multiplier = 80;
-
-                let winAmount = multiplier;
-                state.credits += winAmount;
-                msgDisplay.style.color = 'var(--success-color)';
-                msgDisplay.innerText = `JACKPOT! Triple ${res1} matched. Unlocked +${winAmount} credits!`;
+                let multiplier = res1 === '7️⃣' ? 200 : res1 === '💎' ? 120 : res1 === '🔔' ? 80 : 50;
+                state.credits += multiplier; msgDisplay.style.color = 'var(--success-color)';
+                msgDisplay.innerText = `JACKPOT! Unlocked +${multiplier} credits!`;
             } else if (res1 === res2 || res2 === res3 || res1 === res3) {
-                // Double combination
-                state.credits += 15; // Wins back their 10 bet + 5 profit
-                msgDisplay.style.color = 'var(--accent-color)';
-                msgDisplay.innerText = "Double Match! Earned +15 credits.";
+                state.credits += 15; msgDisplay.style.color = 'var(--accent-color)'; msgDisplay.innerText = "Double Match! Earned +15 credits.";
             } else {
-                // House wins
-                msgDisplay.style.color = '#ff4757';
-                msgDisplay.innerText = "No Matches. Try again!";
+                msgDisplay.style.color = '#ff4757'; msgDisplay.innerText = "No Matches. Try again!";
             }
             updateUI();
         }
 
-        // Initialize UI values on startup load
+        // --- TIC-TAC-TOE GAME ENGINE CODE ---
+        function resetTTTEngine() {
+            tttBoard.fill(''); tttActive = false; tttTurn = 'X';
+            document.getElementById('ttt-mode-select').style.display = 'flex';
+            document.getElementById('ttt-lobby-panel').style.display = 'none';
+            document.getElementById('ttt-board-wrapper').style.display = 'none';
+            document.getElementById('ttt-msg').style.color = '#fff';
+            clearGridRender();
+            if(peer) { peer.destroy(); peer = null; conn = null; }
+        }
+
+        function clearGridRender() {
+            const cells = document.querySelectorAll('.ttt-cell');
+            cells.forEach(cell => { cell.innerText = ''; cell.className = 'ttt-cell'; });
+        }
+
+        function renderBoard() {
+            const cells = document.querySelectorAll('.ttt-cell');
+            tttBoard.forEach((val, idx) => {
+                cells[idx].innerText = val;
+                cells[idx].className = 'ttt-cell';
+                if(val !== '') {
+                    cells[idx].classList.add('taken', val === 'X' ? 'x-mark' : 'o-mark');
+                }
+            });
+            updateTTTStatusMessage();
+        }
+
+        function updateTTTStatusMessage() {
+            const msg = document.getElementById('ttt-msg');
+            msg.style.color = '#fff';
+            let winner = checkWinner();
+
+            if (winner) {
+                tttActive = false;
+                if (winner === 'TIE') { msg.innerText = "Match Declaration: Tie Game!"; return; }
+                if (tttMode === 'ai') {
+                    if (winner === 'X') { msg.innerText = "Victory! Mainframe defeated (+15 🪙)"; state.credits += 15; }
+                    else { msg.style.color = '#ff4757'; msg.innerText = "AI Mainframe Wins!"; }
+                } else {
+                    if (winner === tttMySymbol) { msg.innerText = "You Win the Match! (+20 🪙)"; state.credits += 20; }
+                    else { msg.style.color = '#ff4757'; msg.innerText = "Opponent Wins!"; }
+                }
+                updateUI();
+                return;
+            }
+
+            if(tttMode === 'online') {
+                msg.innerText = tttTurn === tttMySymbol ? "Your Turn" : "Waiting for Opponent move...";
+            } else {
+                msg.innerText = tttTurn === 'X' ? "Your Turn (X)" : "AI Calculating...";
+            }
+        }
+
+        function startTTTAI() {
+            tttMode = 'ai'; tttActive = true; tttMySymbol = 'X'; tttTurn = 'X';
+            document.getElementById('ttt-mode-select').style.display = 'none';
+            document.getElementById('ttt-board-wrapper').style.display = 'block';
+            renderBoard();
+        }
+
+        function showTTTLobby() {
+            document.getElementById('ttt-mode-select').style.display = 'none';
+            document.getElementById('ttt-lobby-panel').style.display = 'flex';
+            document.getElementById('my-id-display').innerText = "Initializing connection to P2P relay server...";
+
+            // Initialize connection using public broker infrastructure
+            peer = new Peer();
+            
+            peer.on('open', (id) => {
+                document.getElementById('my-id-display').innerHTML = `Your Room ID: <strong style="color:#fff; font-size:15px; background:rgba(255,255,255,0.1); padding:2px 8px; border-radius:4px;">${id}</strong><br><span style="color:#888; font-size:11px;">Share this code with your friend to connect.</span>`;
+            });
+
+            peer.on('connection', (incomingConn) => {
+                conn = incomingConn;
+                tttMySymbol = 'X'; // Host plays X, moves first
+                setupP2PListeners();
+                launchOnlineMatch();
+            });
+        }
+
+        function connectToPeer() {
+            const targetId = document.getElementById('join-id-input').value.trim();
+            if(!targetId) return alert("Please fill inside a valid peer verification identity code!");
+            
+            conn = peer.connect(targetId);
+            tttMySymbol = 'O'; // Joiner plays O, moves second
+            setupP2PListeners();
+            launchOnlineMatch();
+        }
+
+        function setupP2PListeners() {
+            conn.on('open', () => {
+                launchOnlineMatch();
+            });
+            conn.on('data', (data) => {
+                if(data.type === 'move') {
+                    tttBoard[data.index] = tttTurn;
+                    tttTurn = tttTurn === 'X' ? 'O' : 'X';
+                    renderBoard();
+                }
+            });
+            conn.on('close', () => {
+                alert("Opponent left the lobby.");
+                resetTTTEngine();
+            });
+        }
+
+        function launchOnlineMatch() {
+            tttMode = 'online'; tttActive = true; tttTurn = 'X';
+            document.getElementById('ttt-lobby-panel').style.display = 'none';
+            document.getElementById('ttt-board-wrapper').style.display = 'block';
+            renderBoard();
+        }
+
+        function handleTTTClick(idx) {
+            if(!tttActive || tttBoard[idx] !== '') return;
+            if(tttMode === 'online' && tttTurn !== tttMySymbol) return;
+
+            // Log player move
+            tttBoard[idx] = tttTurn;
+            tttTurn = tttTurn === 'X' ? 'O' : 'X';
+            renderBoard();
+
+            if (tttMode === 'online' && conn) {
+                conn.send({ type: 'move', index: idx });
+            } else if (tttMode === 'ai' && tttActive && tttTurn === 'O') {
+                setTimeout(executeAIMove, 500); // 500ms delay for simulation realism
+            }
+        }
+
+        function executeAIMove() {
+            if(!tttActive) return;
+            
+            // Defensively optimized logic engine
+            let move = findWinningMove('O') || findWinningMove('X') || (tttBoard[4] === '' ? 4 : -1);
+            
+            if(move === -1) {
+                let emptyCells = tttBoard.map((v, i) => v === '' ? i : null).filter(v => v !== null);
+                move = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+            }
+
+            tttBoard[move] = 'O';
+            tttTurn = 'X';
+            renderBoard();
+        }
+
+        function findWinningMove(symbol) {
+            const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            for(let line of lines) {
+                let chars = line.map(i => tttBoard[i]);
+                if(chars.filter(c => c === symbol).length === 2 && chars.filter(c => c === '').length === 1) {
+                    return line[chars.indexOf('')];
+                }
+            }
+            return null;
+        }
+
+        function checkWinner() {
+            const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            for(let line of lines) {
+                if(tttBoard[line[0]] && tttBoard[line[0]] === tttBoard[line[1]] && tttBoard[line[0]] === tttBoard[line[2]]) {
+                    return tttBoard[line[0]];
+                }
+            }
+            return tttBoard.includes('') ? null : 'TIE';
+        }
+
         updateUI();
     </script>
 </body>
